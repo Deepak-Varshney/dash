@@ -11,6 +11,39 @@ export type Product = {
   updated_at: string;
 };
 
+export type Ticket = {
+  id: string;
+  category: string;
+  description?: string;
+  subcategory: string;
+  status?: "open" | "assigned" | "extended" | "done";
+  createdBy: string;
+  assignedTo?: {
+    id?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    clerkId?: string;
+  };
+  createdAt?: Date;
+  updatedAt?: Date;
+  deadline?: Date;
+};
+
+export type Event = {
+  id: string;
+  title: string;
+  description: string;
+  createdBy: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    clerkId: string;
+  };
+  readBy?: string[];
+  createdAt?: Date;
+};
+
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
   {
@@ -25,6 +58,22 @@ export const navItems: NavItem[] = [
     title: 'Product',
     url: '/dashboard/product',
     icon: 'product',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Ticket',
+    url: '/dashboard/ticket',
+    icon: 'ticket',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Event',
+    url: '/dashboard/event',
+    icon: 'event',
     shortcut: ['p', 'p'],
     isActive: false,
     items: [] // No child items

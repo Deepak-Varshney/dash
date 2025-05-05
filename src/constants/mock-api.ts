@@ -20,6 +20,17 @@ export type Product = {
   updated_at: string;
 };
 
+export type Ticket = {
+  photo_url: string;
+  name: string;
+  description: string;
+  created_at: string;
+  price: number;
+  id: number;
+  category: string;
+  updated_at: string;
+};
+
 // Mock product data store
 export const fakeProducts = {
   records: [] as Product[], // Holds the list of product objects
