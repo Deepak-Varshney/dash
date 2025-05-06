@@ -2,22 +2,36 @@
 
 import { Badge } from '@/components/ui/badge';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
-import { ColumnDef } from '@tanstack/react-table';
+import { Column, ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Expense } from '@/constants/data';
 
 export const columns: ColumnDef<Expense>[] = [
+  // {
+  //   id: 'name',
+  //   accessorKey: 'name',
+  //   header: ({ column }: { column: Column<Expense, unknown> }) => (
+  //     <DataTableColumnHeader column={column} title='Amount' />
+  //   ),
+  //   cell: ({ cell }) => <div>{cell.getValue<Expense['amount']>()}</div>,
+  //   meta: {
+  //     label: 'Amount',
+  //     placeholder: 'Search products...',
+  //     variant: 'text',
+  //   },
+  //   enableColumnFilter: true
+  // },
   {
-    accessorKey: 'title',
+    accessorKey: 'amount',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Title' />
+      <DataTableColumnHeader column={column} title='Amount' />
     ),
-    cell: ({ cell }) => <div className="font-medium">{cell.getValue<string>()}</div>
+    cell: ({ cell }) => <div className="font-medium px-3">{cell.getValue<string>()}</div>
   },
   {
-    accessorKey: 'description',
+    accessorKey: 'notes',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Description' />
+      <DataTableColumnHeader column={column} title='Notes' />
     ),
     cell: ({ cell }) => (
       <div className="line-clamp-2 text-muted-foreground">
@@ -39,20 +53,16 @@ export const columns: ColumnDef<Expense>[] = [
     }
   },
   {
-    accessorKey: 'readBy',
-    header: 'Readers',
+    accessorKey: 'createdAt',
+    header: 'Created At',
     cell: ({ cell }) => {
-      const readers = cell.getValue<string[]>();
-      return (
-        <Badge variant="outline">
-          {readers?.length ?? 0} {readers?.length === 1 ? 'person' : 'people'} read
-        </Badge>
-      );
+      const date = cell.getValue<Date>();
+      return <span>{date ? new Date(date).toLocaleDateString() : '-'}</span>;
     }
   },
   {
-    accessorKey: 'createdAt',
-    header: 'Created At',
+    accessorKey: 'date',
+    header: 'Date',
     cell: ({ cell }) => {
       const date = cell.getValue<Date>();
       return <span>{date ? new Date(date).toLocaleDateString() : '-'}</span>;

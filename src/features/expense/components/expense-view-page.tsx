@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import axios from 'axios';
 import ExpenseForm from './expense-form';
 import { Expense } from '@/constants/data';
+import { getExpenseBydId } from '@/utils/handleExpense';
 
 type TExpenseViewPageProps = {
   expenseId: string;
@@ -10,18 +11,18 @@ type TExpenseViewPageProps = {
 export default async function ExpenseViewPage({
   expenseId
 }: TExpenseViewPageProps) {
-  let expense = null;
+  let expense: Expense | undefined = undefined;
   let pageTitle = 'Create New Expense';
 
   if (expenseId !== 'new') {
-    const data = await axios.get(`/api/expenses/${expenseId}`);
-    expense = data.data as Expense;
+    const data = await getExpenseBydId(expenseId);
+    expense = data as Expense;
     if (!expense) {
       notFound();
     }
     pageTitle = `Edit Expense`;
   }
 
-  return <ExpenseForm pageTitle={pageTitle} />;
+  return <ExpenseForm initialData={expense || undefined} pageTitle={pageTitle} />;
 
 }

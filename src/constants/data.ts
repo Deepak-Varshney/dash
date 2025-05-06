@@ -12,12 +12,17 @@ export type Product = {
 };
 
 export type Ticket = {
-  id: string;
+  _id: string | undefined;
   category: string;
   description?: string;
   subcategory: string;
   status?: "open" | "assigned" | "extended" | "done";
-  createdBy: string;
+  createdBy?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    clerkId: string;
+  };
   assignedTo?: {
     id?: string;
     firstName?: string;
@@ -31,7 +36,7 @@ export type Ticket = {
 };
 
 export type Event = {
-  id: string;
+  _id: string;
   title: string;
   description: string;
   createdBy: {
@@ -45,12 +50,13 @@ export type Event = {
 };
 
 export type Expense = {
-  id: string;
+  _id?: string;
   amount: number;
   category: string;
+  __v?: number;
   notes?: string;
   date?: Date;
-  createdBy: {
+  createdBy?: {
     firstName: string;
     lastName: string;
     email: string;
@@ -90,6 +96,14 @@ export const navItems: NavItem[] = [
     title: 'Event',
     url: '/dashboard/event',
     icon: 'event',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Expense',
+    url: '/dashboard/expense',
+    icon: 'expense',
     shortcut: ['p', 'p'],
     isActive: false,
     items: [] // No child items

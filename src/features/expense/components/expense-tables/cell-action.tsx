@@ -1,4 +1,5 @@
 'use client';
+import { deleteExpense } from '@/app/actions/handleExpense';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,7 +12,8 @@ import {
 import { Expense } from '@/constants/data';
 import { IconEdit, IconDotsVertical, IconTrash } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { startTransition, useState } from 'react';
+import { toast } from 'sonner';
 
 interface CellActionProps {
   data: Expense;
@@ -22,7 +24,21 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  const onConfirm = async () => {};
+  const onConfirm = async () => {
+    startTransition(async () => {
+      if (data._id) {
+        try {
+          await deleteExpense(data._id);
+          toast.success('Expense deleted successfully');
+          setOpen(false);
+          router.refresh()
+        } catch (error) {
+          toast.error('Failed to delete expense');
+        }
+      }
+
+    });
+  };
 
   return (
     <>
@@ -43,7 +59,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
           <DropdownMenuItem
-            onClick={() => router.push(`/dashboard/expense/${data.id}`)}
+            onClick={() => router.push(`/dashboard/expense/${data._id}`)}
           >
             <IconEdit className='mr-2 h-4 w-4' /> Update
           </DropdownMenuItem>

@@ -2,7 +2,7 @@ import { Expense } from '@/constants/data';
 import { searchParamsCache } from '@/lib/searchparams';
 import { columns } from './expense-tables/columns';
 import { ExpenseTable } from './expense-tables';
-import axios from 'axios';
+import { getExpenses } from '@/app/actions/handleExpense';
 
 type ExpenseListingPage = {};
 
@@ -20,14 +20,14 @@ export default async function ExpenseListingPage({}: ExpenseListingPage) {
     ...(categories && { categories: categories })
   };
 
-  const data = await axios.get(`/api/expenses`);
-  const totalTickets = data.data.length;
-  const tickets: Expense[] = data.data
+  const data = await getExpenses(filters);
+  const totalExpenses = data.totalExpenses;
+  const expenses: Expense[] = data.expenses;
 
   return (
     <ExpenseTable
-      data={tickets}
-      totalItems={totalTickets}
+      data={expenses}
+      totalItems={totalExpenses}
       columns={columns}
     />
   );

@@ -12,15 +12,19 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { saveExpense } from '@/app/actions/handleExpense'; // Adjust path as needed
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useState } from 'react';
-import axios from 'axios';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { ticketOptions } from '@/utils/ticketOptions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { updatedExpense } from '@/utils/handleExpense';
+import { Expense } from '@/constants/data';
+import axios from 'axios';
 
 const expenseSchema = z.object({
   amount: z.coerce.number().positive({ message: 'Amount must be a positive number' }),
@@ -35,7 +39,7 @@ export default function ExpenseForm({
   initialData,
   pageTitle,
 }: {
-  initialData?: Partial<ExpenseFormValues>;
+  initialData?: Expense;
   pageTitle: string;
 }) {
   const [loading, setLoading] = useState(false);
@@ -51,13 +55,18 @@ export default function ExpenseForm({
     },
   });
 
+ 
+
+
   async function onSubmit(values: ExpenseFormValues) {
     try {
-      setLoading(true);
-      const res = await axios.post('/api/expenses', values);
-      if (res.status !== 200) throw new Error('Failed to submit expense');
-
-      toast.success('Expense recorded successfully');
+      setLoading(true);  
+      const payload = {
+        ...values,
+        _id: initialData?._id,
+      };
+      await saveExpense(payload);
+      toast.success('Expense saved successfully');
       router.push('/dashboard/expense');
     } catch (error) {
       console.error(error);
@@ -66,7 +75,7 @@ export default function ExpenseForm({
       setLoading(false);
     }
   }
-
+    
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
