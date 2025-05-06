@@ -64,7 +64,14 @@ export const columns: ColumnDef<Ticket>[] = [
   {
     accessorKey: 'createdBy',
     header: 'Created By',
-    cell: ({ cell }) => <div>{cell.getValue<Ticket['createdBy']>()}</div>
+    cell: ({ row }) => {
+      const createdBy = row.original.createdBy;
+      return createdBy?.firstName ? (
+        <div>{createdBy?.firstName} {createdBy?.lastName}</div>
+      ) : (
+        <span className="text-muted-foreground italic">Unassigned</span>
+      );
+    }
   },
   {
     accessorKey: 'assignedTo.firstName',

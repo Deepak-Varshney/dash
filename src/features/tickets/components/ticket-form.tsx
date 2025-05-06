@@ -24,10 +24,12 @@ import * as z from 'zod';
 import { ticketOptions } from '@/utils/ticketOptions';
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-
+import { useRouter } from 'next/navigation';
 
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
+import { toast } from 'sonner';
 
 // Optional image constraints
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -54,7 +56,8 @@ const formSchema = z.object({
 });
 
 export default function TicketForm({ pageTitle }: { pageTitle: string }) {
-
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -66,8 +69,21 @@ export default function TicketForm({ pageTitle }: { pageTitle: string }) {
         }
     });
 
-    const onSubmit = (values: z.infer<typeof formSchema>) => {
-        // You can send the image as FormData or base64
+    const onSubmit = async(values: z.infer<typeof formSchema>) => {
+
+        try {
+            setLoading(true);
+            const res = await axios.post('/api/tickets', values);
+            const response = res.data;
+            if (res.status!=200) throw new Error('Failed to submit event');
+            toast.success("Ticket Has Been Created")
+            router.push("/dashboard/ticket")
+            console.log(response)
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
         console.log('Form Values:', values);
     };
 
@@ -173,7 +189,7 @@ export default function TicketForm({ pageTitle }: { pageTitle: string }) {
                             )}
                         />
 
-                        <Button type='submit'>Submit Ticket</Button>
+                        <Button type='submit' disabled={loading}> {loading ? 'Submitting...' : 'Create Ticket'}</Button>
                     </form>
                 </Form>
             </CardContent>

@@ -16,17 +16,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useState } from 'react';
-import { useUser } from '@clerk/nextjs';
+import axios from 'axios';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
   title: z.string().min(2, { message: 'Title is required' }),
-  description: z.string().min(10, { message: 'Description must be at least 10 characters' }),
-  createdBy: z.object({
-    firstName: z.string(),
-    lastName: z.string(),
-    email: z.string(),
-    clerkId: z.string(),
-  })
+  description: z.string().min(10, { message: 'Description must be at least 10 characters' })
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -39,35 +35,28 @@ export default function EventForm({
   pageTitle: string;
 }) {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       title: '',
       description: '',
-      createdBy:{
-        firstName: '',
-        lastName: '',
-        email: '',
-        clerkId:''
-      }
     }
   });
 
   async function onSubmit(values: FormValues) {
     try {
       setLoading(true);
-      const response = await fetch('/api/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values)
-      });
+      const res = await axios.post('/api/events', values);
+      const response = res.data;
 
-      if (!response.ok) throw new Error('Failed to submit event');
+      if (res.status != 200) throw new Error('Failed to submit event');
 
       // Handle success (e.g., toast, redirect)
-      
-      console.log(await response.json());
+      toast.success("Event Has Been Created")
+      router.push("/dashboard/event")
+      console.log(response)
     } catch (error) {
       console.error(error);
     } finally {

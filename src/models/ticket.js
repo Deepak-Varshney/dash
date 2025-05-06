@@ -9,7 +9,12 @@ const ticketSchema = new mongoose.Schema({
     enum: ["open", "assigned", "extended", "done"],
     default: "open"
   },
-  createdBy: { type: String, required: true },
+  createdBy: {
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    email: { type: String, required: true },
+    clerkId: { type: String, required: true },
+  },
   assignedTo: {
     id: String,
     firstName: String,
@@ -19,7 +24,8 @@ const ticketSchema = new mongoose.Schema({
   },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  deadline: {type: Date}
+  deadline: {type: Date},
+  image: {type: String}
 });
 
 ticketSchema.pre("save", function (next) {

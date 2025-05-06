@@ -8,10 +8,11 @@ import {
   CardAction,
   CardFooter
 } from '@/components/ui/card';
+import { currentUser } from '@clerk/nextjs/server';
 import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
 import React from 'react';
 
-export default function OverViewLayout({
+export default async function OverViewLayout({
   sales,
   pie_stats,
   bar_stats,
@@ -22,12 +23,14 @@ export default function OverViewLayout({
   bar_stats: React.ReactNode;
   area_stats: React.ReactNode;
 }) {
+  const user = await currentUser();
+
   return (
     <PageContainer>
       <div className='flex flex-1 flex-col space-y-2'>
         <div className='flex items-center justify-between space-y-2'>
           <h2 className='text-2xl font-bold tracking-tight'>
-            Hi, Welcome back 👋
+            Hi, Welcome back {user?.firstName}👋
           </h2>
         </div>
 

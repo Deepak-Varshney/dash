@@ -1,13 +1,16 @@
 import mongoose from 'mongoose'
 
 const expenseSchema = new mongoose.Schema({
-    name: { type: String, required: true },
     amount: { type: Number, required: true },
     category: { type: String, required: true },
-    date: { type: Date, required: true },
-    paidBy: { type: String, required: true },
+    date: { type: Date, required: true, default: Date.now() },
     notes: { type: String },
-    createdBy: { type: String, required: true }, // Clerk user ID
+    createdBy: {
+        firstName: { type: String, required: true },
+        lastName: { type: String, required: true },
+        email: { type: String, required: true },
+        clerkId: { type: String, required: true },
+    },
 }, {
     timestamps: true
 })

@@ -44,6 +44,22 @@ export type Event = {
   createdAt?: Date;
 };
 
+export type Expense = {
+  id: string;
+  amount: number;
+  category: string;
+  notes?: string;
+  date?: Date;
+  createdBy: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    clerkId: string;
+  };
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
   {

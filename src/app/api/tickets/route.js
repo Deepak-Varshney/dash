@@ -1,4 +1,4 @@
-import { connectDB } from "@/lib/mongodb";
+import connectDB from "@/lib/mongodb";
 import Ticket from "@/models/ticket";
 import { NextResponse } from "next/server";
 import { currentUser } from '@clerk/nextjs/server';
@@ -6,14 +6,20 @@ import { currentUser } from '@clerk/nextjs/server';
 export async function POST(req) {
   try {
     const user = await currentUser();
-    const { category, description, subcategory } = await req.json();
+    const { category, description, subcategory, image } = await req.json();
 
     await connectDB();
     const newTicket = new Ticket({
       category,
       description,
       subcategory,
-      createdBy: user.id,
+      image,
+      createdBy: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.emailAddresses[0].emailAddress,
+        clerkId: user.id
+      },
       status: "open"
     });
 
