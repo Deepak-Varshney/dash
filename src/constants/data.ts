@@ -12,7 +12,7 @@ export type Product = {
 };
 
 export type Ticket = {
-  _id: string | undefined;
+  _id?: string | undefined;
   category: string;
   description?: string;
   subcategory: string;
@@ -24,7 +24,6 @@ export type Ticket = {
     clerkId: string;
   };
   assignedTo?: {
-    id?: string;
     firstName?: string;
     lastName?: string;
     email?: string;
@@ -33,13 +32,14 @@ export type Ticket = {
   createdAt?: Date;
   updatedAt?: Date;
   deadline?: Date;
+  __v?: number;
 };
 
 export type Event = {
-  _id: string;
+  _id?: string;
   title: string;
   description: string;
-  createdBy: {
+  createdBy?: {
     firstName: string;
     lastName: string;
     email: string;
@@ -47,6 +47,7 @@ export type Event = {
   };
   readBy?: string[];
   createdAt?: Date;
+  __v?: number;
 };
 
 export type Expense = {

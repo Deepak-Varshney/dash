@@ -1,4 +1,5 @@
 'use client';
+import { deleteEvent } from '@/app/actions/handleEvents';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,7 +12,9 @@ import {
 import { Event } from '@/constants/data';
 import { IconEdit, IconDotsVertical, IconTrash } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { startTransition, useState } from 'react';
+import { toast } from 'sonner';
+
 
 interface CellActionProps {
   data: Event;
@@ -22,7 +25,21 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  const onConfirm = async () => {};
+  const onConfirm = async () => {
+    startTransition(async () => {
+      if (data._id) {
+        try {
+          await deleteEvent(data._id);
+          toast.success('Event deleted successfully');
+          setOpen(false);
+          router.refresh()
+        } catch (error) {
+          toast.error('Failed to delete event');
+        }
+      }
+
+    });
+  };
 
   return (
     <>
@@ -43,7 +60,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
           <DropdownMenuItem
-            onClick={() => router.push(`/dashboard/event/${data.id}`)}
+            onClick={() => router.push(`/dashboard/event/${data._id}`)}
           >
             <IconEdit className='mr-2 h-4 w-4' /> Update
           </DropdownMenuItem>

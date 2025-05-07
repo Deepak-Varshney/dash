@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import axios from 'axios';
 import ExpenseForm from './expense-form';
 import { Expense } from '@/constants/data';
 import { getExpenseBydId } from '@/utils/handleExpense';

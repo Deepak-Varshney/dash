@@ -1,4 +1,5 @@
 'use client';
+import { deleteTicket } from '@/app/actions/handleTickets';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,7 +12,9 @@ import {
 import { Ticket } from '@/constants/data';
 import { IconEdit, IconDotsVertical, IconTrash } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { startTransition, useState } from 'react';
+import { toast } from 'sonner';
+
 
 interface CellActionProps {
   data: Ticket;
@@ -22,7 +25,22 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  const onConfirm = async () => {};
+  const onConfirm = async () => {
+    startTransition(async () => {
+      if (data._id) {
+        try {
+          await deleteTicket(data._id);
+          toast.success('Ticket deleted successfully');
+          setOpen(false);
+          router.refresh()
+        } catch (error) {
+          toast.error('Failed to delete ticket');
+        }
+      }
+
+    });
+  };
+
 
   return (
     <>
@@ -41,9 +59,8 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
           <DropdownMenuItem
-            onClick={() => router.push(`/dashboard/ticket/${data.id}`)}
+            onClick={() => router.push(`/dashboard/ticket/${data._id}`)}
           >
             <IconEdit className='mr-2 h-4 w-4' /> Update
           </DropdownMenuItem>
@@ -55,3 +72,4 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     </>
   );
 };
+

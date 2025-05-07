@@ -22,9 +22,7 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { ticketOptions } from '@/utils/ticketOptions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { updatedExpense } from '@/utils/handleExpense';
 import { Expense } from '@/constants/data';
-import axios from 'axios';
 
 const expenseSchema = z.object({
   amount: z.coerce.number().positive({ message: 'Amount must be a positive number' }),
@@ -43,6 +41,7 @@ export default function ExpenseForm({
   pageTitle: string;
 }) {
   const [loading, setLoading] = useState(false);
+  const submitButtonText = initialData ? 'Update Event' : 'Create Event';
   const router = useRouter();
 
   const form = useForm<ExpenseFormValues>({
@@ -55,12 +54,12 @@ export default function ExpenseForm({
     },
   });
 
- 
+
 
 
   async function onSubmit(values: ExpenseFormValues) {
     try {
-      setLoading(true);  
+      setLoading(true);
       const payload = {
         ...values,
         _id: initialData?._id,
@@ -75,7 +74,7 @@ export default function ExpenseForm({
       setLoading(false);
     }
   }
-    
+
   return (
     <Card className='mx-auto w-full'>
       <CardHeader>
@@ -160,7 +159,7 @@ export default function ExpenseForm({
             />
 
             <Button type='submit' disabled={loading}>
-              {loading ? 'Submitting...' : 'Save Expense'}
+              {loading ? 'Submitting...' : submitButtonText}
             </Button>
           </form>
         </Form>

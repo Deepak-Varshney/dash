@@ -16,25 +16,28 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useState } from 'react';
-import axios from 'axios';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { saveEvent } from '@/app/actions/handleEvents';
+import { Event } from '@/constants/data';
+
 
 const formSchema = z.object({
   title: z.string().min(2, { message: 'Title is required' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters' })
 });
-
 type FormValues = z.infer<typeof formSchema>;
 
 export default function EventForm({
   initialData,
   pageTitle
 }: {
-  initialData?: Partial<FormValues>;
+  initialData?: Event;
   pageTitle: string;
 }) {
   const [loading, setLoading] = useState(false);
+  const submitButtonText = initialData ? 'Update Event' : 'Create Event';
+
   const router = useRouter();
 
   const form = useForm<FormValues>({
@@ -46,19 +49,19 @@ export default function EventForm({
   });
 
   async function onSubmit(values: FormValues) {
+
     try {
       setLoading(true);
-      const res = await axios.post('/api/events', values);
-      const response = res.data;
-
-      if (res.status != 200) throw new Error('Failed to submit event');
-
-      // Handle success (e.g., toast, redirect)
-      toast.success("Event Has Been Created")
-      router.push("/dashboard/event")
-      console.log(response)
+      const payload = {
+        ...values,
+        _id: initialData?._id,
+      };
+      await saveEvent(payload);
+      toast.success('Event saved successfully');
+      router.push('/dashboard/event');
     } catch (error) {
       console.error(error);
+      toast.error('Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -106,7 +109,7 @@ export default function EventForm({
             />
 
             <Button type='submit' disabled={loading}>
-              {loading ? 'Submitting...' : 'Create Event'}
+              {loading ? 'Submitting...' : submitButtonText}
             </Button>
           </form>
         </Form>

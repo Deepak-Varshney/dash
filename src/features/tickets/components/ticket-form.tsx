@@ -11,7 +11,6 @@ import {
     FormLabel,
     FormMessage
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
     Select,
@@ -25,13 +24,13 @@ import { ticketOptions } from '@/utils/ticketOptions';
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { saveTicket } from '@/app/actions/handleTickets';
+import { Ticket } from '@/constants/data';
 
-// Optional image constraints
+
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
@@ -55,13 +54,23 @@ const formSchema = z.object({
     description: z.string().min(10, 'Description must be at least 10 characters')
 });
 
-export default function TicketForm({ pageTitle }: { pageTitle: string }) {
+type FormValues = z.infer<typeof formSchema>;
+
+export default function TicketForm({
+    initialData,
+    pageTitle,
+}: {
+    initialData?: Ticket;
+    pageTitle: string;
+}) {
     const [loading, setLoading] = useState(false);
+    const submitButtonText = initialData ? 'Update Event' : 'Create Event';
+
     const router = useRouter();
 
-    const form = useForm<z.infer<typeof formSchema>>({
+    const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
-        defaultValues: {
+        defaultValues: initialData || {
             category: '',
             subcategory: '',
             description: '',
@@ -69,23 +78,24 @@ export default function TicketForm({ pageTitle }: { pageTitle: string }) {
         }
     });
 
-    const onSubmit = async(values: z.infer<typeof formSchema>) => {
+    async function onSubmit(values: FormValues) {
 
         try {
             setLoading(true);
-            const res = await axios.post('/api/tickets', values);
-            const response = res.data;
-            if (res.status!=200) throw new Error('Failed to submit event');
-            toast.success("Ticket Has Been Created")
-            router.push("/dashboard/ticket")
-            console.log(response)
+            const payload = {
+                ...values,
+                _id: initialData?._id,
+            };
+            await saveTicket(payload);
+            toast.success('Ticket saved successfully');
+            router.push('/dashboard/ticket');
         } catch (error) {
             console.error(error);
+            toast.error('Something went wrong');
         } finally {
             setLoading(false);
         }
-        console.log('Form Values:', values);
-    };
+    }
 
     const selectedCategory = useWatch({ control: form.control, name: 'category' });
 
@@ -188,8 +198,9 @@ export default function TicketForm({ pageTitle }: { pageTitle: string }) {
                                 </FormItem>
                             )}
                         />
-
-                        <Button type='submit' disabled={loading}> {loading ? 'Submitting...' : 'Create Ticket'}</Button>
+                        <Button type='submit' disabled={loading}>
+                            {loading ? 'Submitting...' : submitButtonText}
+                        </Button>
                     </form>
                 </Form>
             </CardContent>

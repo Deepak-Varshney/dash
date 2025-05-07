@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import axios from 'axios';
 import EventForm from './event-form';
 import { Event } from '@/constants/data';
+import { getEventBydId } from '@/utils/handleEvents';
 
 type TEventViewPageProps = {
   eventId: string;
@@ -10,18 +10,18 @@ type TEventViewPageProps = {
 export default async function EventViewPage({
   eventId
 }: TEventViewPageProps) {
-  let event = null;
+  let event: Event | undefined = undefined;
   let pageTitle = 'Create New Event';
 
   if (eventId !== 'new') {
-    const data = await axios.get(`/api/events/${eventId}`);
-    event = data.data as Event;
+    const data = await getEventBydId(eventId)
+    event = data as Event;
     if (!event) {
       notFound();
     }
     pageTitle = `Edit Event`;
   }
 
-  return <EventForm pageTitle={pageTitle} />;
+  return <EventForm initialData={event || undefined} pageTitle={pageTitle} />;
 
 }

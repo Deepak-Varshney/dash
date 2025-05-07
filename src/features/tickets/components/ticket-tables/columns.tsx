@@ -6,6 +6,7 @@ import { CheckCircle2, Clock, Loader2, MinusCircle, Send } from 'lucide-react';
 import { CellAction } from './cell-action';
 import { CATEGORY_OPTIONS } from './options';
 import { Ticket } from '@/constants/data';
+import AssignTicketDialog from '@/components/modal/assign-ticket';
 
 export const columns: ColumnDef<Ticket>[] = [
   {
@@ -92,6 +93,11 @@ export const columns: ColumnDef<Ticket>[] = [
       const value = cell.getValue<Ticket['deadline']>();
       return value ? new Date(value).toLocaleDateString() : '-';
     }
+  },
+  {
+    id: 'assign',
+    cell: ({ row }) => <AssignTicketDialog data={row.original} />
+
   },
   {
     id: 'actions',
