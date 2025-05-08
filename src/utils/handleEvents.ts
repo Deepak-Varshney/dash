@@ -20,6 +20,7 @@ export const getEventBydId = async (eventId: string) => {
         readBy: eventData.readBy,
         createdBy: eventData.createdBy, 
         createdAt: eventData.createdAt,
+        date: eventData.date,
         __v: eventData.__v,
       };
   
