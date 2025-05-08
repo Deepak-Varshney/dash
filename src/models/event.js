@@ -10,6 +10,7 @@ const eventSchema = new mongoose.Schema({
     clerkId: { type: String, required: true },
   },
   readBy: { type: [String], default: [] },
+  date: { type: Date, required: true }, 
   createdAt: { type: Date, default: Date.now },
 });
 

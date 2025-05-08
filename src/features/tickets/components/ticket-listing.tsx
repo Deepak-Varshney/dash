@@ -24,6 +24,7 @@ export default async function TicketListingPage({ }: TicketListingPage) {
   const data = await getTickets(filters);
   const totalTickets = data.totalTickets;
   const tickets: Ticket[] = data.tickets;
+  console.log(tickets, 'tickets');
 
   return (
     <TicketTable

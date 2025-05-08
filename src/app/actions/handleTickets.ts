@@ -98,9 +98,9 @@ export async function getTickets(params: GetTicketParams) {
     tickets: tickets.map((e: any) => ({
       ...e,
       _id: e._id.toString(),
-      deadline: e.deadline?.toISOString(),
-      createdAt: e.createdAt?.toISOString(),
-      updatedAt: e.updatedAt?.toISOString(),
+      deadline: e.deadline?.toLocaleDateString(),
+      createdAt: e.createdAt?.toLocaleDateString(),
+      updatedAt: e.updatedAt?.toLocaleDateString(),
       createdBy: {
         ...e.createdBy,
       },

@@ -8,6 +8,8 @@ import {
   CardAction,
   CardFooter
 } from '@/components/ui/card';
+import { UpcomingEvents } from '@/features/overview/components/upcomint-event';
+import { getCurrentMonthExpenses, getTicketCountByStatus, getTotalTickets } from '@/utils/dashboard';
 import { currentUser } from '@clerk/nextjs/server';
 import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
 import React from 'react';
@@ -24,7 +26,10 @@ export default async function OverViewLayout({
   area_stats: React.ReactNode;
 }) {
   const user = await currentUser();
-
+  const totalTickets = await getTotalTickets();
+  const totalTicketsAssigned = await getTicketCountByStatus("assigned");
+  const doneTickets = await getTicketCountByStatus("done");
+  const currentMonthExpense = await getCurrentMonthExpenses();
   return (
     <PageContainer>
       <div className='flex flex-1 flex-col space-y-2'>
@@ -37,9 +42,9 @@ export default async function OverViewLayout({
         <div className='*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs md:grid-cols-2 lg:grid-cols-4'>
           <Card className='@container/card'>
             <CardHeader>
-              <CardDescription>Total Revenue</CardDescription>
+              <CardDescription>Total Tickets</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                $1,250.00
+                {totalTickets}
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
@@ -59,9 +64,9 @@ export default async function OverViewLayout({
           </Card>
           <Card className='@container/card'>
             <CardHeader>
-              <CardDescription>New Customers</CardDescription>
+              <CardDescription>Assigned Tickets</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                1,234
+                {totalTicketsAssigned}
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
@@ -81,9 +86,9 @@ export default async function OverViewLayout({
           </Card>
           <Card className='@container/card'>
             <CardHeader>
-              <CardDescription>Active Accounts</CardDescription>
+              <CardDescription>Resolved Tickets</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                45,678
+                {doneTickets}
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
@@ -103,9 +108,9 @@ export default async function OverViewLayout({
           </Card>
           <Card className='@container/card'>
             <CardHeader>
-              <CardDescription>Growth Rate</CardDescription>
+              <CardDescription>This Month Expenses</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                4.5%
+                {currentMonthExpense}
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
@@ -128,7 +133,9 @@ export default async function OverViewLayout({
         <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
           <div className='col-span-4'>{bar_stats}</div>
           <div className='col-span-4 md:col-span-3'>
-            {/* sales arallel routes */}
+            <UpcomingEvents />
+          </div>
+          <div className='col-span-4 md:col-span-3'>
             {sales}
           </div>
           <div className='col-span-4'>{area_stats}</div>

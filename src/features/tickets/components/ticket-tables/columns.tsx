@@ -91,7 +91,7 @@ export const columns: ColumnDef<Ticket>[] = [
     header: 'Deadline',
     cell: ({ cell }) => {
       const value = cell.getValue<Ticket['deadline']>();
-      return value ? new Date(value).toLocaleDateString() : '-';
+      return value ? value : '-';
     }
   },
   {

@@ -98,9 +98,9 @@ export async function getExpenses(params: GetExpensesParams) {
     expenses: expenses.map((e:any) => ({
         ...e,
         _id: e._id.toString(),
-        date: e.date?.toISOString(),
-        createdAt: e.createdAt?.toISOString(),
-        updatedAt: e.updatedAt?.toISOString(),
+        date: e.date?.toLocaleDateString(),
+        createdAt: e.createdAt?.toLocaleDateString(),
+        updatedAt: e.updatedAt?.toLocaleDateString(),
         createdBy: {
           ...e.createdBy,
         },

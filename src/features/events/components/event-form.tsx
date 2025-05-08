@@ -21,10 +21,11 @@ import { useRouter } from 'next/navigation';
 import { saveEvent } from '@/app/actions/handleEvents';
 import { Event } from '@/constants/data';
 
-
 const formSchema = z.object({
   title: z.string().min(2, { message: 'Title is required' }),
-  description: z.string().min(10, { message: 'Description must be at least 10 characters' })
+  description: z.string().min(10, { message: 'Description must be at least 10 characters' }),
+  date: z.coerce.date({ required_error: 'Date is required' }),
+
 });
 type FormValues = z.infer<typeof formSchema>;
 
@@ -45,16 +46,17 @@ export default function EventForm({
     defaultValues: initialData || {
       title: '',
       description: '',
+      date: new Date()
     }
   });
 
   async function onSubmit(values: FormValues) {
-
     try {
       setLoading(true);
       const payload = {
         ...values,
         _id: initialData?._id,
+        date: values.date ? new Date(values.date) : new Date(),
       };
       await saveEvent(payload);
       toast.success('Event saved successfully');
@@ -107,6 +109,25 @@ export default function EventForm({
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name='date'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='date'
+                      value={field.value?.toISOString().split('T')[0]}
+                      onChange={(e) => field.onChange(new Date(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
 
             <Button type='submit' disabled={loading}>
               {loading ? 'Submitting...' : submitButtonText}

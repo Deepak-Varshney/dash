@@ -13,6 +13,7 @@ export async function saveEvent(data: Event) {
         const id = new Types.ObjectId(data._id);
         await event.findByIdAndUpdate(id, {
             ...data,
+            date: new Date(data.date), 
             updatedAt: new Date(),
         });
     } else {
@@ -21,6 +22,7 @@ export async function saveEvent(data: Event) {
         }
         await event.create({
             ...data,
+            date: new Date(data.date),
             createdBy: {
                 firstName: user.firstName,
                 lastName: user.lastName,
@@ -97,10 +99,10 @@ export async function getEvents(params: GetEventsParams) {
   return {
     events: events.map((e:any) => ({
         ...e,
-        _id: e._id.toString(),
-        date: e.date?.toISOString(),
-        createdAt: e.createdAt?.toISOString(),
-        updatedAt: e.updatedAt?.toISOString(),
+        _id: e._id.toString(),            
+        date: e.date?.toLocaleDateString(),
+        createdAt: e.createdAt?.toLocaleDateString(),
+        updatedAt: e.updatedAt?.toLocaleDateString(),
         createdBy: {
           ...e.createdBy,
         },

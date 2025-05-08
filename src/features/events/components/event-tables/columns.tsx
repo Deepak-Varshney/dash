@@ -53,10 +53,10 @@ export const columns: ColumnDef<Event>[] = [
   {
     accessorKey: 'createdAt',
     header: 'Created At',
-    cell: ({ cell }) => {
-      const date = cell.getValue<Date>();
-      return <span>{date ? new Date(date).toLocaleDateString() : '-'}</span>;
-    }
+  },
+  {
+    accessorKey: 'date',
+    header: 'Date',
   },
   {
     id: 'actions',
