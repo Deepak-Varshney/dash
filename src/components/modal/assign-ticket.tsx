@@ -89,7 +89,7 @@
 // export default AssignTicketDialog;
 
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -98,7 +98,6 @@ import { Ticket } from '@/constants/data';
 import { assignTicket } from '@/app/actions/handleTickets';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { getUsersFromClerk } from '@/lib/clerkUsers';
 
 interface AssignTicketDialogProps {
     data: Ticket;
@@ -111,6 +110,12 @@ const supervisors = [
 ];
 
 const AssignTicketDialog: React.FC<AssignTicketDialogProps> = ({ data }) => {
+    useEffect(()=>{
+        const fetchData = async()=>{
+            console.log("Use effect is working")
+        }
+        fetchData()
+    },[])
     const [deadline, setDeadline] = useState('');
     const [selectedSupervisor, setSelectedSupervisor] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);

@@ -41,7 +41,7 @@ export default function ExpenseForm({
   pageTitle: string;
 }) {
   const [loading, setLoading] = useState(false);
-  const submitButtonText = initialData ? 'Update Event' : 'Create Event';
+  const submitButtonText = initialData ? 'Update Expense' : 'Create Expense';
   const router = useRouter();
 
   const form = useForm<ExpenseFormValues>({

@@ -57,7 +57,7 @@ export default function SignUpViewPage({ stars }: { stars: number }) {
           <Link
             className={cn('group inline-flex hover:text-yellow-200')}
             target='_blank'
-            href={'https://github.com/kiranism/next-shadcn-dashboard-starter'}
+            href={'https://github.com/Deepak-Varshney'}
           >
             <div className='flex items-center'>
               <GitHubLogoIcon className='size-4' />
@@ -73,7 +73,7 @@ export default function SignUpViewPage({ stars }: { stars: number }) {
           </Link>
           <ClerkSignUpForm
             initialValues={{
-              emailAddress: 'your_mail+clerk_test@example.com'
+              emailAddress: 'admin@gmail.com'
             }}
           />
           <p className='text-muted-foreground px-8 text-center text-sm'>

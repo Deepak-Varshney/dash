@@ -64,7 +64,7 @@ export default function TicketForm({
     pageTitle: string;
 }) {
     const [loading, setLoading] = useState(false);
-    const submitButtonText = initialData ? 'Update Event' : 'Create Event';
+    const submitButtonText = initialData ? 'Update Ticket' : 'Create Ticket';
 
     const router = useRouter();
 
