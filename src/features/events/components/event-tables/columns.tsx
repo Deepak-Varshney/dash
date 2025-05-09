@@ -5,6 +5,7 @@ import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-h
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Event } from '@/constants/data';
+import { useUser } from '@clerk/nextjs';
 
 export const columns: ColumnDef<Event>[] = [
   {
@@ -60,6 +61,10 @@ export const columns: ColumnDef<Event>[] = [
   },
   {
     id: 'actions',
-    cell: ({ row }) => <CellAction data={row.original} />
+    cell: ({ row }) => {
+      const { user } = useUser();
+      {user?.publicMetadata?.role === 'admin' && <CellAction data={row.original} />}
+      // <CellAction data={row.original} />}
+    }
   }
 ];

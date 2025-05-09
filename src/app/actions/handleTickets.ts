@@ -64,6 +64,7 @@ interface GetTicketParams {
 
 export async function getTickets(params: GetTicketParams) {
   await connectDB();
+  const user = await currentUser()
 
   const {
     page = 1,
@@ -72,9 +73,23 @@ export async function getTickets(params: GetTicketParams) {
     categories,
   } = params;
 
-  const skip = (Number(page) - 1) * Number(limit);
+  const role = user?.publicMetadata?.role;
+  const clerkId = user?.id;
 
   const query: any = {};
+  const skip = (Number(page) - 1) * Number(limit);
+
+
+  // Role-based access
+  if (role === 'user' || role === undefined) {
+    query['createdBy.clerkId'] = clerkId;
+  } else if (role === 'supervisor') {
+    query['assignedTo.clerkId'] = clerkId;
+  }
+  // Admin sees all, so no query constraint needed
+
+
+
 
   if (search) {
     query.notes = { $regex: search, $options: 'i' }; // search in notes

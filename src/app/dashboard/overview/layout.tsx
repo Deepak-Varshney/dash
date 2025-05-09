@@ -6,7 +6,7 @@ import {
   CardTitle,
   CardDescription,
   CardAction,
-  CardFooter
+  CardFooter,
 } from '@/components/ui/card';
 import { UpcomingEvents } from '@/features/overview/components/upcomint-event';
 import { getCurrentMonthExpenses, getTicketCountByStatus, getTotalTickets } from '@/utils/dashboard';
@@ -17,8 +17,6 @@ import React from 'react';
 export default async function OverViewLayout({
   sales,
   pie_stats,
-  bar_stats,
-  area_stats
 }: {
   sales: React.ReactNode;
   pie_stats: React.ReactNode;
@@ -30,117 +28,86 @@ export default async function OverViewLayout({
   const totalTicketsAssigned = await getTicketCountByStatus("assigned");
   const doneTickets = await getTicketCountByStatus("done");
   const currentMonthExpense = await getCurrentMonthExpenses();
+
   return (
     <PageContainer>
-      <div className='flex flex-1 flex-col space-y-2'>
-        <div className='flex items-center justify-between space-y-2'>
+      <div className='flex max-w-full w-full flex-col space-y-4'>
+        <div className='flex flex-wrap justify-between items-center'>
           <h2 className='text-2xl font-bold tracking-tight'>
-            Hi, Welcome back {user?.firstName}👋
+            Hi, Welcome back {user?.firstName} 👋
           </h2>
         </div>
 
-        <div className='*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs md:grid-cols-2 lg:grid-cols-4'>
-          <Card className='@container/card'>
-            <CardHeader>
-              <CardDescription>Total Tickets</CardDescription>
-              <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                {totalTickets}
-              </CardTitle>
-              <CardAction>
-                <Badge variant='outline'>
-                  <IconTrendingUp />
-                  +12.5%
-                </Badge>
-              </CardAction>
-            </CardHeader>
-            <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-              <div className='line-clamp-1 flex gap-2 font-medium'>
-                Trending up this month <IconTrendingUp className='size-4' />
-              </div>
-              <div className='text-muted-foreground'>
-                Visitors for the last 6 months
-              </div>
-            </CardFooter>
-          </Card>
-          <Card className='@container/card'>
-            <CardHeader>
-              <CardDescription>Assigned Tickets</CardDescription>
-              <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                {totalTicketsAssigned}
-              </CardTitle>
-              <CardAction>
-                <Badge variant='outline'>
-                  <IconTrendingDown />
-                  -20%
-                </Badge>
-              </CardAction>
-            </CardHeader>
-            <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-              <div className='line-clamp-1 flex gap-2 font-medium'>
-                Down 20% this period <IconTrendingDown className='size-4' />
-              </div>
-              <div className='text-muted-foreground'>
-                Acquisition needs attention
-              </div>
-            </CardFooter>
-          </Card>
-          <Card className='@container/card'>
-            <CardHeader>
-              <CardDescription>Resolved Tickets</CardDescription>
-              <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                {doneTickets}
-              </CardTitle>
-              <CardAction>
-                <Badge variant='outline'>
-                  <IconTrendingUp />
-                  +12.5%
-                </Badge>
-              </CardAction>
-            </CardHeader>
-            <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-              <div className='line-clamp-1 flex gap-2 font-medium'>
-                Strong user retention <IconTrendingUp className='size-4' />
-              </div>
-              <div className='text-muted-foreground'>
-                Engagement exceed targets
-              </div>
-            </CardFooter>
-          </Card>
-          <Card className='@container/card'>
-            <CardHeader>
-              <CardDescription>This Month Expenses</CardDescription>
-              <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                {currentMonthExpense}
-              </CardTitle>
-              <CardAction>
-                <Badge variant='outline'>
-                  <IconTrendingUp />
-                  +4.5%
-                </Badge>
-              </CardAction>
-            </CardHeader>
-            <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-              <div className='line-clamp-1 flex gap-2 font-medium'>
-                Steady performance increase{' '}
-                <IconTrendingUp className='size-4' />
-              </div>
-              <div className='text-muted-foreground'>
-                Meets growth projections
-              </div>
-            </CardFooter>
-          </Card>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+          {/* Cards map logic here */}
+          {[{
+            title: 'Total Tickets',
+            value: totalTickets,
+            trend: '+12.5%',
+            icon: <IconTrendingUp />,
+            footerTitle: 'Trending up this month',
+            footerDesc: 'Visitors for the last 6 months',
+          }, {
+            title: 'Assigned Tickets',
+            value: totalTicketsAssigned,
+            trend: '-20%',
+            icon: <IconTrendingDown />,
+            footerTitle: 'Down 20% this period',
+            footerDesc: 'Acquisition needs attention',
+          }, {
+            title: 'Resolved Tickets',
+            value: doneTickets,
+            trend: '+12.5%',
+            icon: <IconTrendingUp />,
+            footerTitle: 'Strong user retention',
+            footerDesc: 'Engagement exceed targets',
+          }, {
+            title: 'This Month Expenses',
+            value: currentMonthExpense,
+            trend: '+4.5%',
+            icon: <IconTrendingUp />,
+            footerTitle: 'Steady performance increase',
+            footerDesc: 'Meets growth projections',
+          }].map((card, idx) => (
+            <Card key={idx} className='hover:shadow-lg transition-shadow duration-300'>
+              <CardHeader>
+                <CardDescription>{card.title}</CardDescription>
+                <CardTitle className='text-2xl font-semibold'>{card.value}</CardTitle>
+                <CardAction>
+                  <Badge variant='outline'>
+                    {card.icon} {card.trend}
+                  </Badge>
+                </CardAction>
+              </CardHeader>
+              <CardFooter className='flex-col items-start gap-1.5 text-sm'>
+                <div className='flex items-center gap-2 font-medium'>
+                  {card.footerTitle} {card.icon}
+                </div>
+                <div className='text-muted-foreground'>{card.footerDesc}</div>
+              </CardFooter>
+            </Card>
+          ))}
         </div>
-        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
-          <div className='col-span-4'>{bar_stats}</div>
-          <div className='col-span-4 md:col-span-3'>
-            <UpcomingEvents />
-          </div>
-          <div className='col-span-4 md:col-span-3'>
-            {sales}
-          </div>
-          <div className='col-span-4'>{area_stats}</div>
+
+        {/* <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
+          <div className='col-span-4 md:col-span-6'>{sales}</div>
           <div className='col-span-4 md:col-span-3'>{pie_stats}</div>
+          <div className='col-span-4 md:col-span-4 overflow-hidden rounded-xl border'>
+            <div className=' overflow-y-auto p-4'>
+              <UpcomingEvents />
+            </div>
+          </div>
+        </div> */}
+        <div className='grid grid-cols-1 gap-4 lg:grid-cols-7'>
+          <div className='lg:col-span-4'>{sales}</div>
+          <div className='lg:col-span-3'>{pie_stats}</div>
+          <div className='lg:col-span-7'>
+            <div className='overflow-y-auto p-4 border rounded-xl'>
+              <UpcomingEvents />
+            </div>
+          </div>
         </div>
+
       </div>
     </PageContainer>
   );
