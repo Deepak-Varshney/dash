@@ -5,6 +5,7 @@ import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-h
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Expense } from '@/constants/data';
+import { useUser } from '@clerk/nextjs';
 
 export const columns: ColumnDef<Expense>[] = [
   // {
@@ -55,7 +56,6 @@ export const columns: ColumnDef<Expense>[] = [
   {
     accessorKey: 'createdAt',
     header: 'Created At',
-    
   },
   {
     accessorKey: 'date',
@@ -63,6 +63,10 @@ export const columns: ColumnDef<Expense>[] = [
   },
   {
     id: 'actions',
-    cell: ({ row }) => <CellAction data={row.original} />
+    cell: ({ row }) => {
+      const { user } = useUser();
+      { user?.publicMetadata?.role === 'admin' && <CellAction data={row.original} /> }
+      // <CellAction data={row.original} />}
+    }
   }
 ];

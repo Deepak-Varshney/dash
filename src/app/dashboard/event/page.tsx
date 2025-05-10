@@ -10,6 +10,7 @@ import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 import { SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
+import { currentUser } from '@clerk/nextjs/server'
 
 export const metadata = {
   title: 'Dashboard: Events'
@@ -20,6 +21,7 @@ type pageProps = {
 };
 
 export default async function Page(props: pageProps) {
+  const user = await currentUser();
   const searchParams = await props.searchParams;
   // Allow nested RSCs to access the search params (in a type-safe way)
   searchParamsCache.parse(searchParams);
@@ -35,12 +37,12 @@ export default async function Page(props: pageProps) {
             title='Events'
             description='Manage events'
           />
-          <Link
+          {user?.publicMetadata?.role === 'admin' && (<Link
             href='/dashboard/event/new'
             className={cn(buttonVariants(), 'text-xs md:text-sm')}
           >
             <IconPlus className='mr-2 h-4 w-4' /> Add New
-          </Link>
+          </Link>)}
         </div>
         <Separator />
         <Suspense

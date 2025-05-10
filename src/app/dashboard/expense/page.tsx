@@ -6,6 +6,7 @@ import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
 import ExpenseListingPage from '@/features/expense/components/expense-listing';
 import { searchParamsCache } from '@/lib/searchparams';
 import { cn } from '@/lib/utils';
+import { currentUser } from '@clerk/nextjs/server';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 import { SearchParams } from 'nuqs/server';
@@ -23,7 +24,7 @@ export default async function Page(props: pageProps) {
   const searchParams = await props.searchParams;
   // Allow nested RSCs to access the search params (in a type-safe way)
   searchParamsCache.parse(searchParams);
-
+  const user = await currentUser();
   // This key is used for invoke suspense if any of the search params changed (used for filters).
   // const key = serialize({ ...searchParams });
 
@@ -35,12 +36,13 @@ export default async function Page(props: pageProps) {
             title='Expenses'
             description='Manage expenses'
           />
-          <Link
+          {user?.publicMetadata?.role === 'admin' && (<Link
+
             href='/dashboard/expense/new'
             className={cn(buttonVariants(), 'text-xs md:text-sm')}
           >
             <IconPlus className='mr-2 h-4 w-4' /> Add New
-          </Link>
+          </Link>)}
         </div>
         <Separator />
         <Suspense
