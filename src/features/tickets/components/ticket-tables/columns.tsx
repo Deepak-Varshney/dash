@@ -14,7 +14,30 @@ const supervisors = [
   { firstName: "Jane", lastName: "Smith", email: "jane.smith@example.com", clerkId: "67890" },
   { firstName: "Emily", lastName: "Johnson", email: "emily.johnson@example.com", clerkId: "11223" }
 ];
+const CellAssignWrapper = ({
+  row,
+  supervisors,
+  AssignDialogComponent,
+}: {
+  row: any;
+  supervisors: any[];
+  AssignDialogComponent: React.ComponentType<{ data: any; supervisors: any[] }>;
+}) => {
+  const { user } = useUser();
+  const ticketAssignedToClerkId = row.original.assignedTo?.clerkId;
 
+  if (user?.publicMetadata?.role !== 'admin' && user?.publicMetadata?.role !== 'supervisor') {
+    return <span className="text-muted-foreground italic">Unassigned</span>;
+  }
+
+  if (user?.publicMetadata?.role === 'supervisor') {
+    if (user.id === ticketAssignedToClerkId) {
+      return <Button onClick={() => alert("Mark Done!!!")} className="italic">Mark Done?</Button>;
+    }
+  }
+
+  return <AssignDialogComponent data={row.original} supervisors={supervisors} />;
+};
 export const columns: ColumnDef<Ticket>[] = [
   {
     id: 'category',
@@ -113,28 +136,14 @@ export const columns: ColumnDef<Ticket>[] = [
   // },
   {
     id: 'assign',
-    cell: ({ row }) => {
-      const { user } = useUser();
-      const ticketAssignedToClerkId = row.original.assignedTo?.clerkId;
-
-      // Check the user's role and whether the supervisor's clerkId matches the ticket's assignedTo
-      if (user?.publicMetadata?.role !== 'admin' && user?.publicMetadata?.role !== 'supervisor') {
-        // If the user is neither an admin nor a supervisor, don't show the assign button
-        return <span className="text-muted-foreground italic">Unassigned</span>;
-      }
-
-      if (user?.publicMetadata?.role === 'supervisor') {
-        // If the user is a supervisor, check if their clerkId matches the ticket's assignedTo clerkId
-        if (user.id == ticketAssignedToClerkId) {
-          return <Button onClick={()=>alert("Mark Done!!!")} className="italic">Mark Done?</Button>;
-        }
-      }
-
-      // For Admins, and Supervisors who are assigned to the ticket, show the Assign Ticket Dialog
-      return <AssignTicketDialog supervisors={supervisors} data={row.original} />;
-    }
+    cell: ({ row }) => (
+      <CellAssignWrapper
+        row={row}
+        supervisors={supervisors}
+        AssignDialogComponent={AssignTicketDialog}
+      />
+    )
   },
-  
   {
     id: 'actions',
     cell: ({ row }) => <CellAction data={row.original} />

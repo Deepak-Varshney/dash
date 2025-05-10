@@ -6,6 +6,9 @@ import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Event } from '@/constants/data';
 import { useUser } from '@clerk/nextjs';
+import { CellActionWrapper } from '@/lib/wrapper';
+
+
 
 export const columns: ColumnDef<Event>[] = [
   {
@@ -62,9 +65,7 @@ export const columns: ColumnDef<Event>[] = [
   {
     id: 'actions',
     cell: ({ row }) => {
-      const { user } = useUser();
-      {user?.publicMetadata?.role === 'admin' && <CellAction data={row.original} />}
-      // <CellAction data={row.original} />}
+      <CellActionWrapper row={row} CellActionComponent={CellAction} />
     }
   }
 ];

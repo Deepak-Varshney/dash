@@ -1,7 +1,7 @@
 export {}
 
 // Create a type for the roles
-export type Roles = 'admin' | 'moderator'
+export type Roles = 'admin' | 'user' | 'supervisor'
 
 declare global {
   interface CustomJwtSessionClaims {

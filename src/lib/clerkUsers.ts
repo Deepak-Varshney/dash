@@ -1,3 +1,5 @@
+import { clerkClient } from "@clerk/nextjs/server";
+
 export async function getUsersFromClerk() {
   const res = await fetch('https://api.clerk.com/v1/users', {
     method: 'GET',
@@ -38,4 +40,12 @@ export async function getSupervisorsFromClerk() {
     (user: any) => user.public_metadata?.role === 'supervisor'
   );
   return supervisors;
+}
+
+export async function getUsers(){
+  const client = await clerkClient()
+  const users = await client.users.getUserList({
+    limit: 100
+  });
+  return users
 }
