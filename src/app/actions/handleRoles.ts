@@ -1,7 +1,7 @@
 'use server'
 
 import { checkRole } from '@/utils/roles'
-import { clerkClient } from '@clerk/nextjs/server'
+import { clerkClient, currentUser } from '@clerk/nextjs/server'
 
 // export async function setRole(formData: any) {
 //   const client = await clerkClient()
@@ -40,8 +40,8 @@ export async function setRole(formData: FormData): Promise<void> {
   const role = formData.get('role') as string
 
   // ❗️Ensure this works server-side — see note below
-  const isAuthorized = await checkRole('admin')
-  if (!isAuthorized) {
+  const isAuthorized = await currentUser()
+  if (isAuthorized?.publicMetadata?.role !== 'admin') {
     console.error('Not authorized to set role')
     return
   }
@@ -58,7 +58,11 @@ export async function setRole(formData: FormData): Promise<void> {
 
 export async function removeRole(formData: FormData): Promise<void> {
   const userId = formData.get('id') as string
-
+  const isAuthorized = await currentUser()
+  if (isAuthorized?.publicMetadata?.role !== 'admin') {
+    console.error('Not authorized to set role')
+    return
+  }
   try {
     const client = await clerkClient();
     await client.users.updateUserMetadata(userId, {
