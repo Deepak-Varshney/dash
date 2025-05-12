@@ -1,51 +1,58 @@
 import { clerkClient } from "@clerk/nextjs/server";
-
-export async function getUsersFromClerk() {
-  const res = await fetch('https://api.clerk.com/v1/users', {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    cache: 'no-store',
-  });
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch users: ${res.statusText}`);
+import { NextRequest } from "next/server";
+function sanitize(obj: any): any {
+  if (Array.isArray(obj)) {
+    return obj.map(sanitize);
+  } else if (obj && typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, sanitize(value)])
+    );
   }
-
-  const data = await res.json();
-  return data;
-
+  return obj;
 }
 
-export async function getSupervisorsFromClerk() {
-  const res = await fetch('https://api.clerk.com/v1/users', {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    cache: 'no-store',
-  });
+export async function getUsers() {
+  const client = await clerkClient();
+  const users = await client.users.getUserList({ limit: 100 });
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch users: ${res.statusText}`);
-  }
+  const plainUsers = users.data.map((user) => sanitize(user));
 
-  const data = await res.json();
-
-  // Filter users whose publicMetadata.role is 'supervisor'
-  const supervisors = data.filter(
-    (user: any) => user.public_metadata?.role === 'supervisor'
-  );
-  return supervisors;
+  return plainUsers;
 }
 
-export async function getUsers(){
+
+type CreateUserParams = {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  address: string
+}
+
+export async function createUser({
+  firstName,
+  lastName,
+  email,
+  password,
+  address,
+}: CreateUserParams) {
   const client = await clerkClient()
-  const users = await client.users.getUserList({
-    limit: 100
-  });
-  return users
+  const response = await client.users.createUser({
+    firstName,
+    lastName,
+    emailAddress: [email],
+    password,
+    publicMetadata: {
+      address,
+    },
+  })
+
+  return response
+}
+
+
+export async function getUserById(userId: string) {
+  const client = await clerkClient();
+  const user = await client.users.getUser(userId);
+  return sanitize(user);
 }

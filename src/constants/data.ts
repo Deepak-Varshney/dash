@@ -34,6 +34,40 @@ export type Ticket = {
   deadline?: Date;
   __v?: number;
 };
+export type User = {
+  id?: string;
+  passwordEnabled?: boolean;
+  totpEnabled?: boolean;
+  backupCodeEnabled?: boolean;
+  twoFactorEnabled?: boolean;
+  banned?: boolean;
+  locked?: boolean;
+  createdAt?: number;
+  updatedAt?: number;
+  imageUrl?: string;
+  hasImage?: boolean;
+  primaryEmailAddressId?: string | null;
+  primaryPhoneNumberId?: string | null;
+  primaryWeb3WalletId?: string | null;
+  lastSignInAt?: number | null;
+  externalId?: string | null;
+  username?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  publicMetadata?: Record<string, any>;
+  privateMetadata?: Record<string, any>;
+  unsafeMetadata?: Record<string, any>;
+  emailAddresses?: Array<any>;
+  phoneNumbers?: Array<any>;
+  web3Wallets?: Array<any>;
+  externalAccounts?: Array<any>;
+  samlAccounts?: Array<any>;
+  lastActiveAt?: number | null;
+  createOrganizationEnabled?: boolean;
+  createOrganizationsLimit?: number | null;
+  deleteSelfEnabled?: boolean;
+  legalAcceptedAt?: number | null;
+};
 
 export type Event = {
   _id?: string;
@@ -98,6 +132,14 @@ export const navItems: NavItem[] = [
     title: 'Expense',
     url: '/dashboard/expense',
     icon: 'expense',
+    shortcut: ['p', 'p'],
+    isActive: false,
+    items: [] // No child items
+  },
+  {
+    title: 'Users',
+    url: '/dashboard/users',
+    icon: 'user',
     shortcut: ['p', 'p'],
     isActive: false,
     items: [] // No child items
