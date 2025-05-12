@@ -111,7 +111,6 @@ export function RegistrationForm({
                   name="emailAddress"
                   type="emailAddress"
                   defaultValue={initialData?.emailAddresses?.[0] ?? ""}
-                  required
                 />
               </div>
              

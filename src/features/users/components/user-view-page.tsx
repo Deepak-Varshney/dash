@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { User } from '@/constants/data';
-import { RegistrationForm } from '@/components/registration-form';
 import { getUserById } from '@/lib/clerkUsers';
+import { RegistrationForm } from '@/components/register-form';
 
 type TUserViewPageProps = {
   userId: string;
