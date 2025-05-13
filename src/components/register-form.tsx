@@ -39,9 +39,8 @@ export function RegistrationForm({
 
     try {
       const response = await axios.post("/api/users", data)
-      console.log("User created:", response)
       toast.success("User created successfully!")
-      // router.push("/dashboard/users")
+      router.push("/dashboard/users")
     } catch (error) {
       console.error("User creation failed:", error)
       toast.error("User creation failed. Please try again.")
@@ -110,7 +109,7 @@ export function RegistrationForm({
                   id="emailAddress"
                   name="emailAddress"
                   type="emailAddress"
-                  defaultValue={initialData?.emailAddresses?.[0] ?? ""}
+                  defaultValue={initialData?.emailAddresses?.[0]?.emailAddress ?? ""}
                 />
               </div>
              

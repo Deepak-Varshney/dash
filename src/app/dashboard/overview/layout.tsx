@@ -8,14 +8,16 @@ import {
   CardAction,
   CardFooter,
 } from '@/components/ui/card';
+import { UserViewTable } from '@/components/ui/table/user-view-table';
 import { UpcomingEvents } from '@/features/overview/components/upcomint-event';
+import { columns } from '@/features/users/components/users-tables/columns';
+import { getUsers } from '@/lib/clerkUsers';
 import { getCurrentMonthExpenses, getTicketCountByStatus, getTotalTickets } from '@/utils/dashboard';
 import { currentUser } from '@clerk/nextjs/server';
 import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
 import React from 'react';
 
 export default async function OverViewLayout({
-  sales,
   pie_stats,
 }: {
   sales: React.ReactNode;
@@ -28,6 +30,7 @@ export default async function OverViewLayout({
   const totalTicketsAssigned = await getTicketCountByStatus("assigned");
   const doneTickets = await getTicketCountByStatus("done");
   const currentMonthExpense = await getCurrentMonthExpenses();
+  const users = await getUsers();
 
   return (
     <PageContainer>
@@ -88,18 +91,13 @@ export default async function OverViewLayout({
             </Card>
           ))}
         </div>
-
-        {/* <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
-          <div className='col-span-4 md:col-span-6'>{sales}</div>
-          <div className='col-span-4 md:col-span-3'>{pie_stats}</div>
-          <div className='col-span-4 md:col-span-4 overflow-hidden rounded-xl border'>
-            <div className=' overflow-y-auto p-4'>
-              <UpcomingEvents />
-            </div>
-          </div>
-        </div> */}
         <div className='grid grid-cols-1 gap-4 lg:grid-cols-7'>
-          <div className='lg:col-span-4'>{sales}</div>
+          <div className='lg:col-span-4'>
+            <UserViewTable
+              columns={columns}
+              data={users}
+            />
+          </div>
           <div className='lg:col-span-3'>{pie_stats}</div>
           <div className='lg:col-span-7'>
             <div className='overflow-y-auto p-4 border rounded-xl'>

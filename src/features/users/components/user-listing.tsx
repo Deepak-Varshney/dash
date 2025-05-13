@@ -1,5 +1,5 @@
 import { columns } from './users-tables/columns';
-import { TicketTable } from './users-tables';
+import { UserTable } from './users-tables';
 import { searchParamsCache } from '@/lib/searchparams';
 import { getTickets } from '@/app/actions/handleTickets';
 import { Ticket, User } from '@/constants/data';
@@ -27,7 +27,7 @@ export default async function UserListingPage({ }: UserListingPage) {
   const users: User[] = data;
 
   return (
-    <TicketTable
+    <UserTable
       data={users}
       totalItems={totalUsers}
       columns={columns}
