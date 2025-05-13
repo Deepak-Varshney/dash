@@ -8,6 +8,8 @@ import {
   CardAction,
   CardFooter,
 } from '@/components/ui/card';
+import { Heading } from '@/components/ui/heading';
+import { Separator } from '@/components/ui/separator';
 import { UserViewTable } from '@/components/ui/table/user-view-table';
 import { UpcomingEvents } from '@/features/overview/components/upcomint-event';
 import { columns } from '@/features/users/components/users-tables/columns';
@@ -93,6 +95,8 @@ export default async function OverViewLayout({
         </div>
         <div className='grid grid-cols-1 gap-4 lg:grid-cols-7'>
           <div className='lg:col-span-4'>
+          <Heading title='Recent Users'  description={`${users.length} Users joined Recently`}/>
+          <Separator className='my-4'/>
             <UserViewTable
               columns={columns}
               data={users}
@@ -105,7 +109,6 @@ export default async function OverViewLayout({
             </div>
           </div>
         </div>
-
       </div>
     </PageContainer>
   );
