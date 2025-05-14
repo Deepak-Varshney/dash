@@ -59,7 +59,7 @@ export const columns: ColumnDef<User>[] = [
     header: 'Role',
     cell: ({ row }) => {
       return (
-        row.original.publicMetadata?.role.toUpperCase()
+        row.original.publicMetadata?.role?.toUpperCase()
       )
     }
   },

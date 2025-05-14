@@ -24,8 +24,10 @@ interface CellActionProps {
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading, setLoading] = useState(false);
+  const [modalType, setModalType] = useState<'delete' | 'role' | null>(null);
   const [open, setOpen] = useState(false);
   const router = useRouter();
+
   const [role, setRoleState] = useState(''); // Ass
 
   const onConfirm = async () => {
@@ -75,16 +77,14 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     <>
       <AlertModal
         isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={onConfirm}
+        onClose={() => {
+          setOpen(false);
+          setModalType(null);
+        }}
+        onConfirm={modalType === 'delete' ? onConfirm : onRoleConfirm}
         loading={loading}
       />
-      <AlertModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={onRoleConfirm}
-        loading={loading}
-      />
+
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant='ghost' className='h-8 w-8 p-0'>
@@ -99,29 +99,43 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           >
             <IconEdit className='mr-2 h-4 w-4' /> Update
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setOpen(true)}>
+          <DropdownMenuItem onClick={() => {
+            setOpen(true);
+            setModalType('delete');
+          }}>
             <IconTrash className='mr-2 h-4 w-4' /> Delete
           </DropdownMenuItem>
-          {data.publicMetadata?.role !== 'user' && <DropdownMenuItem onClick={() => {
-            setOpen(true)
-            setRoleState('user')
-          }}>
-            <User2 className='mr-2 h-4 w-4' /> Make User
-          </DropdownMenuItem>}
-          {data.publicMetadata?.role !=='admin' && <DropdownMenuItem onClick={() => {
-            setOpen(true)
-            setRoleState('admin')
-          }}>
-            <User2 className='mr-2 h-4 w-4' /> Make Admin
-          </DropdownMenuItem>}
-         {data.publicMetadata?.role !=='supervisor' && <DropdownMenuItem onClick={() => {
-            setOpen(true)
-            setRoleState('supervisor')
-          }}>
-            <User2 className='mr-2 h-4 w-4' /> Make Supervisor
-          </DropdownMenuItem>}
-        </DropdownMenuContent>
-      </DropdownMenu>
+          {data.publicMetadata?.role !== 'user' && (
+            <DropdownMenuItem onClick={() => {
+              setRoleState('user');
+              setModalType('role');
+              setOpen(true);
+            }}>
+              <User2 className='mr-2 h-4 w-4' /> Make User
+            </DropdownMenuItem>
+          )}
+
+          {data.publicMetadata?.role !== 'admin' && (
+            <DropdownMenuItem onClick={() => {
+              setRoleState('admin');
+              setModalType('role');
+              setOpen(true);
+            }}>
+              <User2 className='mr-2 h-4 w-4' /> Make Admin
+            </DropdownMenuItem>
+          )}
+
+          {data.publicMetadata?.role !== 'supervisor' && (
+            <DropdownMenuItem onClick={() => {
+              setRoleState('supervisor');
+              setModalType('role');
+              setOpen(true);
+            }}>
+              <User2 className='mr-2 h-4 w-4' /> Make Supervisor
+            </DropdownMenuItem>
+          )}
+      </DropdownMenuContent>
+    </DropdownMenu >
     </>
   );
 };

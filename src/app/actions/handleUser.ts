@@ -47,6 +47,7 @@ export async function createUser(data: CreateUserInput) {
       skipPasswordRequirement: true,
       publicMetadata: {
         address,
+        role:'user',
       }
     })
 
