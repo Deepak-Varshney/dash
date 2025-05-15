@@ -1,98 +1,3 @@
-// import { Event } from "@/constants/data";
-// import connectDB from "@/lib/mongodb";
-// import event from "@/models/event";
-// import expense from "@/models/expense";
-// import ticket from "@/models/ticket";
-// import mongoose from "mongoose";
-
-// // Total number of tickets
-// export const getTotalTickets = async () => {
-//   return await ticket.countDocuments();
-// };
-
-// // Tickets by status
-// export const getTicketCountByStatus = async (status: string) => {
-//   return await ticket.countDocuments({ status });
-// };
-
-// // Total expenses of current month
-// export const getCurrentMonthExpenses = async () => {
-//   const now = new Date();
-//   const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-//   const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-//   const result = await expense.aggregate([
-//     {
-//       $match: {
-//         date: { $gte: firstDay, $lte: lastDay },
-//       },
-//     },
-//     {
-//       $group: {
-//         _id: null,
-//         total: { $sum: "$amount" },
-//       },
-//     },
-//   ]);
-
-//   return result[0]?.total || 0;
-// };
-
-// // Upcoming events (next 7 days)
-
-
-// export const getUpcomingEvents = async (): Promise<Event[] | null> => {
-//   try {
-//     await connectDB();
-
-//     const now = new Date();
-//     const nextWeek = new Date();
-//     nextWeek.setDate(now.getDate() + 7);
-
-//     // Use lean() to return plain JS objects
-//     const events = await event.find({
-//       createdAt: { $gte: now, $lte: nextWeek },
-//     })
-//     .sort({ createdAt: 1 })
-//     .lean();
-
-//     if (!events || events.length === 0) return [];
-
-//     // Convert _id and other values to serializable formats
-//     const transformedEvents: Event[] = events.map((e: any) => ({
-//       _id: e._id?.toString(),
-//       title: e.title,
-//       description: e.description,
-//       createdBy: {
-//         firstName: e.createdBy.firstName,
-//         lastName: e.createdBy.lastName,
-//         email: e.createdBy.email,
-//         clerkId: e.createdBy.clerkId,
-//       },
-//       createdAt: e.createdAt,
-//       readBy: e.readBy,
-//       __v: e.__v,
-//     }));
-
-//     return transformedEvents;
-//   } catch (error) {
-//     console.error("Error fetching events:", error);
-//     return null;
-//   }
-// };
-
-
-// // Assigned tickets count
-// export const getAssignedTicketsCount = async () => {
-//   return await ticket.countDocuments({ status: "assigned" });
-// };
-
-// // Closed/Done tickets count
-// export const getClosedTicketsCount = async () => {
-//   return await ticket.countDocuments({ status: "done" });
-// };
-
-
 import { Event } from "@/constants/data";
 import connectDB from "@/lib/mongodb";
 import event from "@/models/event";
@@ -186,7 +91,6 @@ export const getUpcomingEvents = async (): Promise<Event[] | null> => {
       },
       createdAt: e.createdAt,
       date: e.date,
-      readBy: e.readBy,
       __v: e.__v,
     }));
 

@@ -5,41 +5,49 @@ import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-h
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Expense } from '@/constants/data';
-import { useUser } from '@clerk/nextjs';
 import { CellActionWrapper } from '@/lib/wrapper';
+import { CATEGORY_OPTIONS } from './options';
+
 
 export const columns: ColumnDef<Expense>[] = [
-  // {
-  //   id: 'name',
-  //   accessorKey: 'name',
-  //   header: ({ column }: { column: Column<Expense, unknown> }) => (
-  //     <DataTableColumnHeader column={column} title='Amount' />
-  //   ),
-  //   cell: ({ cell }) => <div>{cell.getValue<Expense['amount']>()}</div>,
-  //   meta: {
-  //     label: 'Amount',
-  //     placeholder: 'Search products...',
-  //     variant: 'text',
-  //   },
-  //   enableColumnFilter: true
-  // },
+  {
+    id: 'category',
+    accessorKey: 'category',
+    header: ({ column }: { column: Column<Expense, unknown> }) => (
+      <DataTableColumnHeader column={column} title='Category' />
+    ),
+    cell: ({ cell }) => <div>{cell.getValue<Expense['category']>()}</div>,
+    meta: {
+      label: 'Category',
+      variant: 'multiSelect',
+      options: CATEGORY_OPTIONS
+    },
+    enableColumnFilter: true
+  },
   {
     accessorKey: 'amount',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Amount' />
     ),
+    enableColumnFilter: true,
     cell: ({ cell }) => <div className="font-medium px-3">{cell.getValue<string>()}</div>
   },
   {
     accessorKey: 'notes',
-    header: ({ column }) => (
+    id: 'search',
+    header: ({ column }: { column: Column<Expense, unknown> }) => (
       <DataTableColumnHeader column={column} title='Notes' />
     ),
-    cell: ({ cell }) => (
+    cell: ({ cell }) =>
       <div className="line-clamp-2 text-muted-foreground">
         {cell.getValue<string>()}
-      </div>
-    )
+      </div>,
+    meta: {
+      label: 'Notes',
+      placeholder: 'Search name, email, notes...',
+      variant: 'text',
+    },
+    enableColumnFilter: true
   },
   {
     accessorKey: 'createdBy',
@@ -61,6 +69,7 @@ export const columns: ColumnDef<Expense>[] = [
   {
     accessorKey: 'date',
     header: 'Date',
+
   },
   {
     id: 'actions',

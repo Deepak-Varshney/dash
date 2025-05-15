@@ -23,7 +23,7 @@ export const columns: ColumnDef<User>[] = [
     },
   },
   {
-    id: 'firstName',
+    id: 'search',
     accessorKey: 'firstName',
     header: ({ column }: { column: Column<User, unknown> }) => (
       <DataTableColumnHeader column={column} title='Name' />
@@ -31,7 +31,7 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ cell }) => <div>{cell.getValue<User['firstName']>()}</div>,
     meta: {
       label: 'Name',
-      placeholder: 'Search name...',
+      placeholder: 'Search name, email...',
       variant: 'text',
     },
     enableColumnFilter: true
@@ -41,18 +41,17 @@ export const columns: ColumnDef<User>[] = [
     header: 'Last Name',
   },
   {
-    accessorKey: 'createdAt',
-    header: 'Created At',
+    accessorKey: 'address',
+    header: 'Address',
     cell: ({ row }) => {
       const user = row.original;
-      return user.createdAt
-        ? new Date(user.createdAt).toLocaleDateString('en-IN', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-        })
-        : 'N/A';
-    },
+      const address = user.publicMetadata?.address;
+      return (
+        <div className="flex flex-col">
+          <span>{address}</span>
+        </div>
+      );
+    }
   },
   {
     id: 'role',

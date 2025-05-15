@@ -1,23 +1,23 @@
+
 import { Expense } from '@/constants/data';
 import { searchParamsCache } from '@/lib/searchparams';
 import { columns } from './expense-tables/columns';
 import { ExpenseTable } from './expense-tables';
-import { getExpenses } from '@/app/actions/handleExpense';
+import { getExpenses } from '@/utils/handleExpense';
 
-type ExpenseListingPage = {};
-
-export default async function ExpenseListingPage({}: ExpenseListingPage) {
-  // Showcasing the use of search params cache in nested RSCs
+export default async function ExpenseListingPage() {
   const page = searchParamsCache.get('page');
-  const search = searchParamsCache.get('name');
   const pageLimit = searchParamsCache.get('perPage');
-  const categories = searchParamsCache.get('category');
+  const search = searchParamsCache.get('search');
+  const sort = searchParamsCache.get('sort');
+  const category = searchParamsCache.get('category');
 
   const filters = {
     page,
     limit: pageLimit,
     ...(search && { search }),
-    ...(categories && { categories: categories })
+    ...(category && { category }),
+    ...(sort && { sort })
   };
 
   const data = await getExpenses(filters);

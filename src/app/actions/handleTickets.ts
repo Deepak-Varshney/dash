@@ -56,73 +56,145 @@ export async function deleteTicket(ticketId: string) {
 
 
 interface GetTicketParams {
-  page?: string | number;
-  limit?: string | number;
+  page?: number;
+  limit?: number;
   search?: string;
-  categories?: string | string[];
+  category?: string | string[];
+  sort?: string;
 }
-
-export async function getTickets(params: GetTicketParams) {
+export async function getTickets({
+  search = '',
+  category,
+  page = 1,
+  sort,
+  limit = 10
+}: GetTicketParams) {
   await connectDB();
+
+  const offset = (page - 1) * limit;
+  const query: any = {};
   const user = await currentUser()
-
-  const {
-    page = 1,
-    limit = 10,
-    search = '',
-    categories,
-  } = params;
-
   const role = user?.publicMetadata?.role;
   const clerkId = user?.id;
-
-  const query: any = {};
-  const skip = (Number(page) - 1) * Number(limit);
-
-
   // Role-based access
-  if (role === 'user' || role === undefined) {
-    query['createdBy.clerkId'] = clerkId;
-  } else if (role === 'supervisor') {
-    query['assignedTo.clerkId'] = clerkId;
+  if (!user) {
+    throw new Error('Unauthorized');
   }
-  // Admin sees all, so no query constraint needed
 
-
-
-
+  switch (role) {
+    case 'user':
+    case undefined:
+      query['createdBy.clerkId'] = clerkId;
+      break;
+    case 'supervisor':
+      query['assignedTo.clerkId'] = clerkId;
+      break;
+    case 'admin':
+      // See all tickets — no query constraints
+      break;
+    default:
+      // Optionally deny unknown roles
+      throw new Error(`Invalid role: ${role}`);
+  }
+  // Search filter
   if (search) {
-    query.notes = { $regex: search, $options: 'i' }; // search in notes
+    const searchRegex = new RegExp(search, 'i');
+    query.$or = [
+      { description: searchRegex },
+      { 'createdBy.firstName': searchRegex },
+      { 'createdBy.email': searchRegex }
+    ];
+  }
+  // Parse sort param
+  let sortQuery: Record<string, 1 | -1> = { updatedAt: -1 }; // default
+
+  if (sort) {
+    try {
+      const sortArray = JSON.parse(sort); // Expecting [{ id: 'field', desc: true }]
+      if (Array.isArray(sortArray) && sortArray.length > 0) {
+        sortQuery = sortArray.reduce((acc, item) => {
+          if (item.id && typeof item.desc === 'boolean') {
+            acc[item.id] = item.desc ? -1 : 1;
+          }
+          return acc;
+        }, {} as Record<string, 1 | -1>);
+      }
+    } catch (err) {
+      console.warn('Invalid sort param:', sort);
+    }
   }
 
-  if (categories) {
-    query.category = { $in: Array.isArray(categories) ? categories : [categories] };
+
+  // Category filter (multi-select support)
+  let categoryList: string[] = [];
+
+  if (Array.isArray(category)) {
+    categoryList = category;
+  } else if (typeof category === 'string' && category.length > 0) {
+    categoryList = category.split(',').map((c) => c.trim());
   }
 
-  const [tickets, totalTickets] = await Promise.all([
-    ticket
-      .find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(Number(limit))
-      .lean(),
-    ticket.countDocuments(query),
-  ]);
+  if (categoryList.length > 0) {
+    query.category = { $in: categoryList };
+  }
+
+  const totalTickets = await ticket.countDocuments(query);
+  const tickets = await ticket.find(query)
+    .skip(offset)
+    .limit(limit)
+    .sort(sortQuery)
+    .lean();
+
+  const totalPages = Math.ceil(totalTickets / limit);
 
   return {
-    tickets: tickets.map((e: any) => ({
-      ...e,
-      _id: e._id.toString(),
-      deadline: e.deadline?.toLocaleDateString(),
-      createdAt: e.createdAt?.toLocaleDateString(),
-      updatedAt: e.updatedAt?.toLocaleDateString(),
+    tickets: tickets.map((ticketDoc) => ({
+      ...ticketDoc,
+      _id: ticketDoc._id?.toString(),
+      deadline: ticketDoc.deadline?.toLocaleDateString(),
+      createdAt: ticketDoc.createdAt?.toLocaleDateString(),
+      updatedAt: ticketDoc.updatedAt?.toLocaleDateString(),
+      category: ticketDoc.category,
+      subcategory: ticketDoc.subcategory,
+      status: ticketDoc.status,
       createdBy: {
-        ...e.createdBy,
+        ...ticketDoc.createdBy
       },
     })),
     totalTickets,
+    totalPages,
+    currentPage: page
   };
 }
+
+
+
+export const getTicketBydId = async (ticketId: string) => {
+  try {
+    await connectDB();
+    const ticketData = await ticket.findById(ticketId).lean() as Ticket;
+
+    if (!ticketData) {
+      return null;
+    }
+
+    const transformedTicket: Ticket = {
+      _id: ticketData._id?.toString(),
+      category: ticketData.category,
+      subcategory: ticketData.subcategory,
+      description: ticketData.description,
+      createdBy: ticketData.createdBy,
+      createdAt: ticketData.createdAt,
+      __v: ticketData.__v,
+    };
+
+    return transformedTicket;
+  } catch (error) {
+    console.error('Error fetching ticket:', error);
+    return null;
+  }
+};
+
 
 export async function assignTicket(ticketId: string | any, supervisor: {
   firstName: string;

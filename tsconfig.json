@@ -25,7 +25,7 @@
       }
     ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/utils/ticketOptions.jsx", "src/features/overview/components/RoleForm"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/utils/ticketOptions.tsx", "src/features/overview/components/RoleForm", "src/app/api/test/route.js"],
   "exclude": ["node_modules"],
   "moduleResolution": ["node_modules", ".next", "node"]
 }

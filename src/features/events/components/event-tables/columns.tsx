@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, Column } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Event } from '@/constants/data';
 import { CellActionWrapper } from '@/lib/wrapper';
@@ -18,15 +18,21 @@ export const columns: ColumnDef<Event>[] = [
     cell: ({ cell }) => <div className="font-medium">{cell.getValue<string>()}</div>
   },
   {
+    id: 'search',
     accessorKey: 'description',
-    header: ({ column }) => (
+    header: ({ column }: { column: Column<Event, unknown> }) => (
       <DataTableColumnHeader column={column} title='Description' />
     ),
-    cell: ({ cell }) => (
+    cell: ({ cell }) =>
       <div className="line-clamp-2 text-muted-foreground">
         {cell.getValue<string>()}
-      </div>
-    )
+      </div>,
+    meta: {
+      label: 'Description',
+      placeholder: 'Search name, email, description...',
+      variant: 'text',
+    },
+    enableColumnFilter: true
   },
   {
     accessorKey: 'createdBy',
@@ -42,18 +48,6 @@ export const columns: ColumnDef<Event>[] = [
     }
   },
   {
-    accessorKey: 'readBy',
-    header: 'Readers',
-    cell: ({ cell }) => {
-      const readers = cell.getValue<string[]>();
-      return (
-        <Badge variant="outline">
-          {readers?.length ?? 0} {readers?.length === 1 ? 'person' : 'people'} read
-        </Badge>
-      );
-    }
-  },
-  {
     accessorKey: 'createdAt',
     header: 'Created At',
   },
@@ -64,7 +58,7 @@ export const columns: ColumnDef<Event>[] = [
   {
     id: 'actions',
     cell: ({ row }) => {
-      return(
+      return (
         <CellActionWrapper row={row} CellActionComponent={CellAction} />
       )
     }

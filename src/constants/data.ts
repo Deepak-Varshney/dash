@@ -79,7 +79,6 @@ export type Event = {
     email: string;
     clerkId: string;
   };
-  readBy?: string[];
   date: Date;
   createdAt?: Date;
   __v?: number;

@@ -3,21 +3,79 @@ import connectDB from "@/lib/mongodb";
 import { Expense } from "@/constants/data";
 import { toast } from "sonner";
 
-export const getExpenses = async (filters: any) => {
-  try {
-    await connectDB();
-    const { page = 1, limit =2, search, categories } = filters;
-    const query: any = {};
+interface GetExpensesParams {
+  search?: string;
+  category?: string | string[];
+  page?: number;
+  sort?: string;
+  limit?: number;
+}
 
-    if (search) query.title = { $regex: search, $options: 'i' };
-    if (categories) query.category = { $in: Array.isArray(categories) ? categories : [categories] };
+export async function getExpenses({
+  search = '',
+  category,
+  page = 1,
+  sort,
+  limit = 10
+}: GetExpensesParams) {
+  await connectDB();
 
-    const [expenses, totalExpenses] = await Promise.all([
-      expense.find(query).skip((page - 1) * limit).limit(limit).lean(),
-      expense.countDocuments(query),
-    ]);
+  const offset = (page - 1) * limit;
+  const query: any = {};
 
-    const transformedExpenses: Expense[] = expenses.map((expenseDoc) => ({
+  // Search filter
+  if (search) {
+    const searchRegex = new RegExp(search, 'i');
+    query.$or = [
+      { notes: searchRegex },
+      { 'createdBy.firstName': searchRegex },
+      { 'createdBy.email': searchRegex }
+    ];
+  }
+  // Parse sort param
+  let sortQuery: Record<string, 1 | -1> = { updatedAt: -1 }; // default
+
+  if (sort) {
+    try {
+      const sortArray = JSON.parse(sort); // Expecting [{ id: 'field', desc: true }]
+      if (Array.isArray(sortArray) && sortArray.length > 0) {
+        sortQuery = sortArray.reduce((acc, item) => {
+          if (item.id && typeof item.desc === 'boolean') {
+            acc[item.id] = item.desc ? -1 : 1;
+          }
+          return acc;
+        }, {} as Record<string, 1 | -1>);
+      }
+    } catch (err) {
+      console.warn('Invalid sort param:', sort);
+    }
+  }
+
+
+  // Category filter (multi-select support)
+  let categoryList: string[] = [];
+
+  if (Array.isArray(category)) {
+    categoryList = category;
+  } else if (typeof category === 'string' && category.length > 0) {
+    categoryList = category.split(',').map((c) => c.trim());
+  }
+
+  if (categoryList.length > 0) {
+    query.category = { $in: categoryList };
+  }
+
+  const totalExpenses = await expense.countDocuments(query);
+  const expenses = await expense.find(query)
+    .skip(offset)
+    .limit(limit)
+    .sort(sortQuery)
+    .lean();
+
+  const totalPages = Math.ceil(totalExpenses / limit);
+
+  return {
+    expenses: expenses.map((expenseDoc) => ({
       _id: expenseDoc._id?.toString(),
       createdAt: expenseDoc.createdAt,
       updatedAt: expenseDoc.updatedAt,
@@ -27,24 +85,16 @@ export const getExpenses = async (filters: any) => {
       notes: expenseDoc.notes,
       date: expenseDoc.date,
       createdBy: expenseDoc.createdBy,
-    }));
-
-    return {
-      expenses: transformedExpenses,
-      totalExpenses,
-    };
-  } catch (error) {
-    console.error(error);
-    return {
-      expenses: [],
-      totalExpenses: 0,
-    };
-  }
-};
+    })),
+    totalExpenses,
+    totalPages,
+    currentPage: page
+  };
+}
 
 
 
-export const updatedExpense = async (expenseId:any, data: Expense) => {
+export const updatedExpense = async (expenseId: any, data: Expense) => {
   try {
     await connectDB();
 

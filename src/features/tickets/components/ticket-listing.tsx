@@ -10,15 +10,17 @@ export default async function TicketListingPage({ }: TicketListingPage) {
 
   const page = searchParamsCache.get('page');
   const limit = searchParamsCache.get('perPage');
-  const search = searchParamsCache.get('name');
-  const categories = searchParamsCache.get('category');
+  const search = searchParamsCache.get('search');
+  const sort = searchParamsCache.get('sort');
+  const category = searchParamsCache.get('category');
 
 
   const filters = {
     page,
     limit: limit,
     ...(search && { search }),
-    ...(categories && { categories: categories })
+    ...(category && { category }),
+    ...(sort && { sort })
   };
 
   const data = await getTickets(filters);

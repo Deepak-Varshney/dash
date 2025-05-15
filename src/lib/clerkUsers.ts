@@ -11,14 +11,27 @@ function sanitize(obj: any): any {
   return obj;
 }
 
-export async function getUsers() {
+
+export async function getUsers({ page = 1, limit = 10, search = '' }) {
+  const offset = (page - 1) * limit;
   const client = await clerkClient();
-  const users = await client.users.getUserList({ limit: 100 });
 
-  const plainUsers = users.data.map((user) => sanitize(user));
+  const { data, totalCount } = await client.users.getUserList({
+    limit: Number(limit),
+    offset: offset,
+    ...(search && { query: search })
+  });
+  const plainUsers = data.map((user) => sanitize(user));
+  
 
-  return plainUsers;
+  return {
+    plainUsers,
+    totalCount,
+    currentPage: page,
+    totalPages: Math.ceil(totalCount / limit)
+  };
 }
+
 
 
 type CreateUserParams = {

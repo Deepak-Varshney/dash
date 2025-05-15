@@ -17,7 +17,13 @@ import { getUsers } from '@/lib/clerkUsers';
 import { getCurrentMonthExpenses, getTicketCountByStatus, getTotalTickets } from '@/utils/dashboard';
 import { currentUser } from '@clerk/nextjs/server';
 import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
+import { Metadata } from 'next';
 import React from 'react';
+
+
+export const metadata:Metadata = {
+  title: 'Dashboard: Overview',
+};
 
 export default async function OverViewLayout({
   pie_stats,

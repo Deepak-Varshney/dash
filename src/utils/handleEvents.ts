@@ -17,7 +17,6 @@ export const getEventBydId = async (eventId: string) => {
         _id: eventData._id?.toString(),
         title: eventData.title,
         description: eventData.description,
-        readBy: eventData.readBy,
         createdBy: eventData.createdBy, 
         createdAt: eventData.createdAt,
         date: eventData.date,

@@ -4,11 +4,11 @@ import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-h
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { CheckCircle2, Clock, Loader2, MinusCircle, Send } from 'lucide-react';
 import { CellAction } from './cell-action';
-import { CATEGORY_OPTIONS } from './options';
 import { Ticket } from '@/constants/data';
 import AssignTicketDialog from '@/components/modal/assign-ticket';
 import { useUser } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
+import { CATEGORY_OPTIONS } from '@/features/expense/components/expense-tables/options';
 const supervisors = [
   { firstName: "Deepak", lastName: "Supervisor", email: "supervisor@gmail.com", clerkId: "user_2w5OH0OjodyZHI7IdQzeowjPyML" },
   { firstName: "Jane", lastName: "Smith", email: "jane.smith@example.com", clerkId: "67890" },
@@ -63,13 +63,21 @@ export const columns: ColumnDef<Ticket>[] = [
     cell: ({ cell }) => <div>{cell.getValue<Ticket['subcategory']>()}</div>
   },
   {
+    id: 'search',
     accessorKey: 'description',
-    header: 'Description',
+    header: ({ column }: { column: Column<Ticket, unknown> }) => (
+      <DataTableColumnHeader column={column} title='Description' />),
     cell: ({ cell }) => (
       <div className="line-clamp-2 text-muted-foreground">
-        {cell.getValue<Ticket['description']>()}
+        {cell.getValue<string>()}
       </div>
-    )
+    ),
+    meta: {
+      label: 'Notes',
+      placeholder: 'Search name, email, description...',
+      variant: 'text',
+    },
+    enableColumnFilter: true
   },
   {
     accessorKey: 'status',
@@ -124,16 +132,6 @@ export const columns: ColumnDef<Ticket>[] = [
       return value ? value : '-';
     }
   },
-  // {
-  //   id: 'assign',
-  //   cell: ({ row }) => {
-  //     const { user } = useUser();
-  //     if (user?.publicMetadata?.role !== 'admin' && user?.publicMetadata?.role !== 'supervisor') {
-  //       return <span className="text-muted-foreground italic">Unassigned</span>;
-  //     }
-  //     return <AssignTicketDialog supervisors={supervisors} data={row.original} />;
-  //   }
-  // },
   {
     id: 'assign',
     cell: ({ row }) => (

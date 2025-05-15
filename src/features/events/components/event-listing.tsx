@@ -9,16 +9,17 @@ type EventListingPage = {};
 export default async function EventListingPage({ }: EventListingPage) {
 
   const page = searchParamsCache.get('page');
-  const search = searchParamsCache.get('name');
+  const search = searchParamsCache.get('search');
   const limit = searchParamsCache.get('perPage');
-  const categories = searchParamsCache.get('category');
+  const sort = searchParamsCache.get('sort');
 
 
   const filters = {
     page,
     limit: limit,
     ...(search && { search }),
-    ...(categories && { categories: categories })
+    ...(sort && { sort })
+
   };
 
   const data = await getEvents(filters);

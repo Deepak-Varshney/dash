@@ -7,32 +7,32 @@ import { Types } from 'mongoose';
 import { currentUser } from '@clerk/nextjs/server';
 
 export async function saveEvent(data: Event) {
-    await connectDB();
-    const user = await currentUser()
-    if (data._id) {
-        const id = new Types.ObjectId(data._id);
-        await event.findByIdAndUpdate(id, {
-            ...data,
-            date: new Date(data.date), 
-            updatedAt: new Date(),
-        });
-    } else {
-        if (!user) {
-            throw new Error("User is not authenticated.");
-        }
-        await event.create({
-            ...data,
-            date: new Date(data.date),
-            createdBy: {
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.emailAddresses[0].emailAddress,
-                clerkId: user.id
-            },
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        });
+  await connectDB();
+  const user = await currentUser()
+  if (data._id) {
+    const id = new Types.ObjectId(data._id);
+    await event.findByIdAndUpdate(id, {
+      ...data,
+      date: new Date(data.date),
+      updatedAt: new Date(),
+    });
+  } else {
+    if (!user) {
+      throw new Error("User is not authenticated.");
     }
+    await event.create({
+      ...data,
+      date: new Date(data.date),
+      createdBy: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.emailAddresses[0].emailAddress,
+        clerkId: user.id
+      },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+  }
 }
 
 
@@ -58,10 +58,10 @@ export async function deleteEvent(eventId: string) {
 
 
 interface GetEventsParams {
-  page?: string | number;
-  limit?: string | number;
+  page?: number;
+  limit?: number;
   search?: string;
-  categories?: string | string[];
+  sort?: string;
 }
 
 export async function getEvents(params: GetEventsParams) {
@@ -71,42 +71,62 @@ export async function getEvents(params: GetEventsParams) {
     page = 1,
     limit = 10,
     search = '',
-    categories,
+    sort,
   } = params;
 
-  const skip = (Number(page) - 1) * Number(limit);
 
+  const offset = (page - 1) * limit;
   const query: any = {};
-
+  // search filter
   if (search) {
-    query.notes = { $regex: search, $options: 'i' }; // search in notes
+    const searchRegex = new RegExp(search, 'i');
+    query.$or = [
+      { search: searchRegex },
+      { title: searchRegex },
+      { 'createdBy.lastName': searchRegex },
+      { 'createdBy.firstName': searchRegex },
+      { 'createdBy.email': searchRegex }
+    ];
   }
-
-  if (categories) {
-    query.category = { $in: Array.isArray(categories) ? categories : [categories] };
+  let sortQuery: Record<string, 1 | -1> = { updatedAt: -1 }; // default
+  if (sort) {
+    try {
+      const sortArray = JSON.parse(sort); // Expecting [{ id: 'field', desc: true }]
+      if (Array.isArray(sortArray) && sortArray.length > 0) {
+        sortQuery = sortArray.reduce((acc, item) => {
+          if (item.id && typeof item.desc === 'boolean') {
+            acc[item.id] = item.desc ? -1 : 1;
+          }
+          return acc;
+        }, {} as Record<string, 1 | -1>);
+      }
+    } catch (err) {
+      console.warn('Invalid sort param:', sort);
+    }
   }
+  const totalEvents = await event.countDocuments(query);
+  const events = await event.find(query)
+    .skip(offset)
+    .limit(limit)
+    .sort(sortQuery)
+    .lean();
 
-  const [events, totalEvents] = await Promise.all([
-    event
-      .find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(Number(limit))
-      .lean(),
-    event.countDocuments(query),
-  ]);
+  const totalPages = Math.ceil(totalEvents / limit);
+
 
   return {
-    events: events.map((e:any) => ({
-        ...e,
-        _id: e._id.toString(),            
-        date: e.date?.toLocaleDateString(),
-        createdAt: e.createdAt?.toLocaleDateString(),
-        updatedAt: e.updatedAt?.toLocaleDateString(),
-        createdBy: {
-          ...e.createdBy,
-        },
-      })),
-      totalEvents,
+    events: events.map((e: any) => ({
+      ...e,
+      _id: e._id?.toString(),
+      date: e.date?.toLocaleDateString(),
+      createdAt: e.createdAt?.toLocaleDateString(),
+      updatedAt: e.updatedAt?.toLocaleDateString(),
+      createdBy: {
+        ...e.createdBy,
+      },
+    })),
+    totalEvents,
+    totalPages,
+    currentPage: page
   };
 }

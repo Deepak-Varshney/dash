@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import TicketForm from '@/features/tickets/components/ticket-form';
 import { Ticket } from '@/constants/data';
-import { getTicketBydId } from '@/utils/handleTickets';
+import { getTicketBydId } from '@/app/actions/handleTickets';
 
 type TTicketViewPageProps = {
   ticketId: string;
