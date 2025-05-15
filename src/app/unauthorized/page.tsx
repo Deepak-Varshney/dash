@@ -5,6 +5,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { currentUser } from "@clerk/nextjs/server"
 import { Metadata } from "next";
 import { cookies } from "next/headers";
+import Image from "next/image";
 export const metadata: Metadata = {
     title: 'Next Shadcn Dashboard Starter',
     description: 'Basic dashboard with Next.js and Shadcn'
@@ -31,7 +32,8 @@ export default async function Component() {
 
                             <div className="mt-6">
                                 {user?.imageUrl ? (
-                                    <img
+                                    <
+                                        Image
                                         src={user.imageUrl}
                                         alt={`${user.firstName}'s profile`}
                                         className="mx-auto rounded-full border shadow"
@@ -40,7 +42,8 @@ export default async function Component() {
                                         style={{ aspectRatio: "1/1", objectFit: "cover" }}
                                     />
                                 ) : (
-                                    <img
+                                    <
+                                        Image
                                         src="/placeholder.svg"
                                         alt="Unauthorized access illustration"
                                         className="mx-auto"

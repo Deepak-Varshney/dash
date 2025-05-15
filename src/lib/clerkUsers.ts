@@ -12,6 +12,8 @@ function sanitize(obj: any): any {
 }
 
 
+
+
 export async function getUsers({ page = 1, limit = 10, search = '' }) {
   const offset = (page - 1) * limit;
   const client = await clerkClient();

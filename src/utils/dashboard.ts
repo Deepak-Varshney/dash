@@ -3,6 +3,7 @@ import connectDB from "@/lib/mongodb";
 import event from "@/models/event";
 import expense from "@/models/expense";
 import ticket from "@/models/ticket";
+import { clerkClient } from "@clerk/nextjs/server";
 
 // Total number of tickets
 export const getTotalTickets = async () => {
@@ -154,3 +155,22 @@ export const getMonthlyExpenses = async (month: number, year: number): Promise<n
     return 0;
   }
 };
+
+function sanitize(obj: any): any {
+  if (Array.isArray(obj)) {
+    return obj.map(sanitize);
+  } else if (obj && typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, sanitize(value)])
+    );
+  }
+  return obj;
+}
+export async function getUsers() {
+  const client = await clerkClient();
+  const users = await client.users.getUserList({ limit: 100 });
+
+  const plainUsers = users.data.map((user) => sanitize(user));
+
+  return plainUsers;
+}

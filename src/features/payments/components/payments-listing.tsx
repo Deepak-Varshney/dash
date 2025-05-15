@@ -2,7 +2,7 @@ import { Expense } from '@/constants/data';
 import { searchParamsCache } from '@/lib/searchparams';
 import { columns } from './payment-tables/columns';
 import { ExpenseTable } from './payment-tables';
-import { getExpenses } from '@/app/actions/handleExpense';
+import { getExpenses } from '@/utils/handleExpense';
 
 type PaymentListingPage = {};
 
