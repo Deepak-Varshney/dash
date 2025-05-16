@@ -106,6 +106,7 @@
     "@types/react": "19.0.1",
     "@types/react-dom": "19.0.2",
     "@types/sort-by": "^1.2.3",
+    "@types/stripe": "^8.0.416",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^6.11.0",
     "husky": "^9.1.7",
