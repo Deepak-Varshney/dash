@@ -15,7 +15,6 @@
 
 // export default mongoose.models.Payment || mongoose.model("Payment", paymentSchema);
 
-
 import mongoose, { Schema, Document, models } from 'mongoose';
 
 export interface IPayment extends Document {
@@ -24,14 +23,21 @@ export interface IPayment extends Document {
   status: 'pending' | 'paid' | 'overdue';
   amount: number;
   paidAt?: Date;
+  dueDate: Date; // Add a field for the due date
 }
 
 const PaymentSchema = new Schema<IPayment>({
   userId: { type: String, required: true },
   month: { type: String, required: true },
-  status: { type: String, enum: ['pending', 'paid', 'overdue'], default: 'pending' },
+  status: { type: String, enum: ['upcoming', 'paid', 'overdue', "advance"], default: 'pending' },
   amount: { type: Number, required: true },
-  paidAt: { type: Date }
+  paidAt: { type: Date },
+  dueDate: { type: Date, required: true }, // Add a required dueDate field
 }, { timestamps: true });
+
+// A static method to calculate overdue payments based on dueDate
+PaymentSchema.statics.getOverduePayments = function () {
+  return this.find({ status: 'pending', dueDate: { $lt: new Date() } });
+};
 
 export default models.Payment || mongoose.model<IPayment>('Payment', PaymentSchema);

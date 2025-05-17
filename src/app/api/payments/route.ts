@@ -24,6 +24,7 @@ import connectDB from "@/lib/mongodb";
 //   // Upsert each month: if not exists, create; if exists and unpaid, update amount if necessary
 //   const results = [];
 //   for (const month of months) {
+
 //     const Payment = await payment.findOneAndUpdate(
 //       { userId, month },
 //       { $setOnInsert: { status: 'pending', amount } },
@@ -50,13 +51,21 @@ async function markOverduePayments(userId: string) {
   const currentMonth = `${year}-${month}`;
   const day = today.getDate();
 
-  if (day > 7) {
+  if (day > 7) {  // If today's date is after the 7th, mark the current month's payment as overdue
+    await payment.updateMany(
+      { userId, month: currentMonth, status: "pending" },
+      { $set: { status: "overdue" } }
+    );
+  }
+
+  if (day > 19) {
     // Mark all "pending" payments for this user, for all months <= currentMonth, as "overdue"
     await payment.updateMany(
       { userId, month: { $lte: currentMonth }, status: "pending" },
       { $set: { status: "overdue" } }
     );
   }
+
 }
 
 // In your GET handler:
@@ -79,6 +88,50 @@ export async function GET(req: NextRequest) {
 //   return NextResponse.json(payments, { status: 200 });
 // }
 
+// export async function POST(req: NextRequest) {
+//   await connectDB();
+//   const { userId } = await auth();
+//   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+//   const { months, amount } = await req.json(); // months: string[] (['2025-05', ...]), amount: number
+
+//   const results = [];
+//   for (const month of months) {
+//     const Payment = await payment.findOneAndUpdate(
+//       { userId, month },
+//       { $setOnInsert: { amount, status: 'pending' } },
+//       { upsert: true, new: true }
+//     );
+//     results.push(Payment);
+//   }
+//   return NextResponse.json(results, { status: 200 });
+// }
+
+
+// export async function POST(req: NextRequest) {
+//   await connectDB();
+//   const { userId } = await auth();
+//   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+//   const { months, amount } = await req.json(); // months: string[] (['2025-05', ...]), amount: number
+
+//   if (!Array.isArray(months)) {
+//     return NextResponse.json({ error: "Months must be an array." }, { status: 400 });
+//   }
+
+//   const results = [];
+//   for (const month of months) {
+//     const Payment = await payment.findOneAndUpdate(
+//       { userId, month },
+//       { $setOnInsert: { amount, status: 'pending' } },
+//       { upsert: true, new: true }
+//     );
+//     results.push(Payment);
+//   }
+//   return NextResponse.json(results, { status: 200 });
+// }
+
+
 export async function POST(req: NextRequest) {
   await connectDB();
   const { userId } = await auth();
@@ -86,11 +139,15 @@ export async function POST(req: NextRequest) {
 
   const { months, amount } = await req.json(); // months: string[] (['2025-05', ...]), amount: number
 
+  if (!Array.isArray(months)) {
+    return NextResponse.json({ error: "Months must be an array." }, { status: 400 });
+  }
+
   const results = [];
   for (const month of months) {
     const Payment = await payment.findOneAndUpdate(
       { userId, month },
-      { $setOnInsert: { amount, status: 'pending' } },
+      { $setOnInsert: { amount, status: 'upcoming' } }, // Set status as 'upcoming' here
       { upsert: true, new: true }
     );
     results.push(Payment);
@@ -98,13 +155,37 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(results, { status: 200 });
 }
 
+
+// export async function PATCH(req: NextRequest) {
+//   // Mark given months as paid
+//   await connectDB();
+//   const { userId } = await auth();
+//   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+//   const { months } = await req.json(); // months: string[]
+
+//   const results = [];
+//   for (const month of months) {
+//     const Payment = await payment.findOneAndUpdate(
+//       { userId, month },
+//       { status: "paid", paidAt: new Date() },
+//       { new: true }
+//     );
+//     results.push(Payment);
+//   }
+//   return NextResponse.json(results, { status: 200 });
+// }
+
 export async function PATCH(req: NextRequest) {
-  // Mark given months as paid
   await connectDB();
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { months } = await req.json(); // months: string[]
+
+  if (!Array.isArray(months)) {
+    return NextResponse.json({ error: "Months must be an array." }, { status: 400 });
+  }
 
   const results = [];
   for (const month of months) {
