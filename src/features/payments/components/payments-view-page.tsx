@@ -11,7 +11,7 @@ export default async function PaymentViewPage({
   paymentId
 }: TPaymentViewPageProps) {
   let expense: Expense | undefined = undefined;
-  let pageTitle = 'Create New Expense';
+  let pageTitle = 'Create New Payment';
 
   if (paymentId !== 'new') {
     const data = await getExpenseBydId(paymentId);

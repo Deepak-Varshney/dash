@@ -71,3 +71,10 @@ export async function getUserById(userId: string) {
   const user = await client.users.getUser(userId);
   return sanitize(user);
 }
+
+export async function getAllUsers(){
+  const client = await clerkClient();
+  const users = await client.users.getUserList({
+  });
+  return sanitize(users.data);
+}
