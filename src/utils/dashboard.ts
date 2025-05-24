@@ -5,6 +5,43 @@ import expense from "@/models/expense";
 import ticket from "@/models/ticket";
 import { clerkClient } from "@clerk/nextjs/server";
 
+// New: Get ticket count before a given date
+export const getTicketCountBeforeDate = async (status?: string, beforeDate?: Date): Promise<number> => {
+  try {
+    await connectDB();
+    const query: any = {};
+    if (beforeDate) query.createdAt = { $lt: beforeDate };
+    if (status) query.status = status;
+
+    return await ticket.countDocuments(query).lean();
+  } catch (error) {
+    console.error(`Error fetching previous ticket count for status "${status}":`, error);
+    return 0;
+  }
+};
+
+// New: Trend calculation helper
+// export const calculateTrend = (current: number, previous: number): string => {
+//   if (previous === 0) {
+//     if (current === 0) return '0%';
+//     if (current === 1) return '+100%'; // Single item added
+//     return `+${current * 100}%`; // Scale up reasonably
+//   }
+
+//   const change = ((current - previous) / previous) * 100;
+//   return `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
+// };
+
+export const calculateTrend = (current: number, previous: number): string => {
+  if (previous === 0) {
+    if (current === 0) return '0%';
+    return '+100%'; // or 'New' or 'N/A'
+  }
+  const change = ((current - previous) / previous) * 100;
+  return `${change >= 0 ? '+' : ''}${change.toFixed(0)}%`;
+};
+
+
 // Total number of tickets
 export const getTotalTickets = async () => {
   try {

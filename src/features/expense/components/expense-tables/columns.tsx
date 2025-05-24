@@ -62,14 +62,51 @@ export const columns: ColumnDef<Expense>[] = [
       );
     }
   },
-  {
-    accessorKey: 'createdAt',
-    header: 'Created At',
-  },
+  // {
+  //   accessorKey: 'createdAt',
+  //   header: 'Created At',
+  // },
+  // {
+  //   accessorKey: 'date',
+  //   header: 'Date',
+
+  // },
   {
     accessorKey: 'date',
     header: 'Date',
-
+    cell: ({ cell }) => {
+      const value = cell.getValue();
+      const isValidType = typeof value === 'string' || typeof value === 'number' || value instanceof Date;
+      const date = isValidType && value ? new Date(value) : null;
+      return (
+        <span>
+          {date
+            ? `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
+              .toString()
+              .padStart(2, '0')}/${date.getFullYear()}`
+            : ''}
+        </span>
+      );
+    }
+  },
+  // If you add createdAt, use the same cell logic:
+  {
+    accessorKey: 'createdAt',
+    header: 'Created At',
+    cell: ({ cell }) => {
+      const value = cell.getValue();
+      const isValidType = typeof value === 'string' || typeof value === 'number' || value instanceof Date;
+      const date = isValidType && value ? new Date(value) : null;
+      return (
+        <span>
+          {date
+            ? `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
+              .toString()
+              .padStart(2, '0')}/${date.getFullYear()}`
+            : ''}
+        </span>
+      );
+    }
   },
   {
     id: 'actions',

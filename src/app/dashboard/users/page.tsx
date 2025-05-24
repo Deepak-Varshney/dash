@@ -37,7 +37,7 @@ export default async function Page(props: pageProps) {
             title='Users'
             description='Manage users'
           />
-         {user?.publicMetadata?.role==='role' && <Link
+         {user?.publicMetadata?.role==='admin' && <Link
             href='/dashboard/users/new'
             className={cn(buttonVariants(), 'text-xs md:text-sm')}
           >

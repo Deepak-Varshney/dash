@@ -33,6 +33,7 @@ import {
   IconLayoutKanban,
   IconBrandGithub,
   IconSpeakerphone,
+  IconSettings2,
   IconCash,
 } from '@tabler/icons-react';
 
@@ -73,4 +74,5 @@ export const Icons = {
   twitter: IconBrandTwitter,
   check: IconCheck,
   expense: IconCash,
+  gear: IconSettings2,
 };

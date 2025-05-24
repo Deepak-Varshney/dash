@@ -7,8 +7,11 @@ import { CellAction } from './cell-action';
 import { Ticket } from '@/constants/data';
 import AssignTicketDialog from '@/components/modal/assign-ticket';
 import { useUser } from '@clerk/nextjs';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { CATEGORY_OPTIONS } from '@/features/expense/components/expense-tables/options';
+import { updateTicketStatus } from '@/app/actions/handleTickets';
+import { useRouter } from 'next/navigation';
 const supervisors = [
   { firstName: "Deepak", lastName: "Supervisor", email: "supervisor@gmail.com", clerkId: "user_2w5OH0OjodyZHI7IdQzeowjPyML" },
   { firstName: "Jane", lastName: "Smith", email: "jane.smith@example.com", clerkId: "67890" },
@@ -25,18 +28,38 @@ const CellAssignWrapper = ({
 }) => {
   const { user } = useUser();
   const ticketAssignedToClerkId = row.original.assignedTo?.clerkId;
-
+  const router = useRouter();
   if (user?.publicMetadata?.role !== 'admin' && user?.publicMetadata?.role !== 'supervisor') {
     return <span className="text-muted-foreground italic">Unassigned</span>;
   }
 
-  if (user?.publicMetadata?.role === 'supervisor') {
+  // if (user?.publicMetadata?.role === 'supervisor') {
+  //   if (user.id === ticketAssignedToClerkId) {
+  //     return <Button onClick={() => alert("Mark Done!!!")} className="italic">Mark Done?</Button>;
+  //   }
+  // }
+
+  if (user?.publicMetadata?.role === 'supervisor'  && row.original.status !== 'done') {
     if (user.id === ticketAssignedToClerkId) {
-      return <Button onClick={() => alert("Mark Done!!!")} className="italic">Mark Done?</Button>;
+      return (
+        <Button
+          onClick={async () => {
+            try {
+              await updateTicketStatus(row.original._id, 'done'); // Call your utility
+              toast.success('Ticket marked as done!');
+              router.refresh();
+            } catch (err) {
+              toast.error('Failed to mark as done');
+            }
+          }}
+          className="italic"
+        >
+          Mark Done?
+        </Button>
+      );
     }
   }
-
-  return <AssignDialogComponent data={row.original} supervisors={supervisors} />;
+  return (row.original.status!=='done' && <AssignDialogComponent data={row.original} supervisors={supervisors} />)
 };
 export const columns: ColumnDef<Ticket>[] = [
   {
@@ -90,12 +113,18 @@ export const columns: ColumnDef<Ticket>[] = [
         extended: Loader2,
         done: CheckCircle2
       };
+      const displayStatus = status === 'done'
+        ? 'Resolved'
+        : status
+          ? status.charAt(0).toUpperCase() + status.slice(1)
+          : '';
       const Icon = iconMap[status as keyof typeof iconMap] || MinusCircle;
+
 
       return (
         <Badge variant='outline' className='flex items-center gap-1 capitalize'>
           <Icon className="h-4 w-4" />
-          {status}
+          {displayStatus}
         </Badge>
       );
     }
