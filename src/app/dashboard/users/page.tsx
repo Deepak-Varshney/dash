@@ -6,6 +6,7 @@ import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
 import UserListingPage from '@/features/users/components/user-listing';
 import { searchParamsCache, serialize } from '@/lib/searchparams';
 import { cn } from '@/lib/utils';
+import { currentUser } from '@clerk/nextjs/server';
 import { IconPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 import { SearchParams } from 'nuqs/server';
@@ -21,6 +22,7 @@ type pageProps = {
 
 export default async function Page(props: pageProps) {
   const searchParams = await props.searchParams;
+  const user = await currentUser();
   // Allow nested RSCs to access the search params (in a type-safe way)
   searchParamsCache.parse(searchParams);
 
@@ -35,12 +37,12 @@ export default async function Page(props: pageProps) {
             title='Users'
             description='Manage users'
           />
-          <Link
+         {user?.publicMetadata?.role==='role' && <Link
             href='/dashboard/users/new'
             className={cn(buttonVariants(), 'text-xs md:text-sm')}
           >
             <IconPlus className='mr-2 h-4 w-4' /> Add New
-          </Link>
+          </Link>}
         </div>
         <Separator />
         <Suspense

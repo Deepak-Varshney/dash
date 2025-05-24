@@ -36,7 +36,8 @@ const isProtectedRoute = createRouteMatcher(['/dashboard(.*)']);
 // Define restricted routes (require admin role)
 const isRestrictedRoute = createRouteMatcher([
   '/dashboard/event/new',
-  '/dashboard/expense/new',
+  '/dashboard/expense/:path*',
+  '/dashboard/users/:path*',
 ]);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
