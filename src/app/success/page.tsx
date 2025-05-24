@@ -30,16 +30,37 @@ export default function SuccessPage() {
         <AppSidebar />
         <SidebarInset>
           <Header />
-          <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
+          <div className="flex items-center justify-center min-h-screen px-4">
             <Card className="w-full max-w-md shadow-xl border-0">
               <CardHeader className="flex items-center gap-2 text-center">
                 <CheckCircle2 className="text-green-500 h-12 w-12" />
                 <CardTitle className="text-3xl font-bold text-green-600">Payment Successful</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-center">
-                <p className="text-gray-700">
-                  Thank you for your payment{months ? ` for: ${months}` : ""}.
+                <p className="text-muted-foreground">
+                  Thank you for your payment
+                  {months && (
+                    <>
+                      {' '}for:{' '}
+                      {months.split(',').map((month, i, arr) => {
+                        const [year, monthNum] = month.split('-');
+                        const date = new Date(Number(year), Number(monthNum) - 1);
+                        const formatted = new Intl.DateTimeFormat('en-US', {
+                          month: 'long',
+                          year: 'numeric'
+                        }).format(date);
+                        return (
+                          <span key={month}>
+                            {formatted}
+                            {i < arr.length - 1 ? ', ' : ''}
+                          </span>
+                        );
+                      })}
+                      .
+                    </>
+                  )}
                 </p>
+
                 <div className="flex flex-col gap-2">
                   <Button className="w-full" onClick={() => router.push("/dashboard")}>
                     Go to Dashboard

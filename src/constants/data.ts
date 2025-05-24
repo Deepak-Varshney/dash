@@ -163,6 +163,12 @@ export const navItems: NavItem[] = [
         url: '/dashboard/profile',
         icon: 'userPen',
         shortcut: ['m', 'm']
+      },
+      {
+        title: 'Billing',
+        url: '/dashboard/billing', // Placeholder as there is no direct link for the parent
+        icon: 'billing',
+        isActive: true,
       }
     ]
   },

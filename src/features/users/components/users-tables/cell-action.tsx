@@ -94,11 +94,11 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem
+          {/* <DropdownMenuItem
             onClick={() => router.push(`/dashboard/users/${data.id}`)}
           >
             <IconEdit className='mr-2 h-4 w-4' /> Update
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           <DropdownMenuItem onClick={() => {
             setOpen(true);
             setModalType('delete');

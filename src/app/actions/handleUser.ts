@@ -1,34 +1,6 @@
-// 'use server'
-
-// import { clerkClient } from "@clerk/nextjs/server"
-
-// type CreateUserInput = {
-//   firstName: string
-//   lastName: string
-//   emailAddress: string
-//   password: string
-//   address: string
-// }
-
-// export async function createUser(data: CreateUserInput) {
-//   const client = await clerkClient()
-//   const response = await client.users.createUser({
-//     firstName: data.firstName,
-//     lastName: data.lastName,
-//     emailAddress: [data.emailAddress],
-//     password: data.password,
-//     publicMetadata: {
-//       address: data.address,
-//     },
-//   })
-
-//   return response
-// }
-
-
 'use server'
 
-import { clerkClient } from '@clerk/nextjs/server'
+import { clerkClient, currentUser } from '@clerk/nextjs/server'
 
 type CreateUserInput = {
   firstName: string
@@ -37,6 +9,13 @@ type CreateUserInput = {
   address: string
 }
 export async function createUser(data: CreateUserInput) {
+  const user = await currentUser();
+  if (!user) {
+    throw new Error('User is not authenticated.')
+  }
+  if (user.publicMetadata?.role !== 'admin') {
+    throw new Error('User does not have permission to create other users.')
+  }
   const { firstName, lastName, emailAddress, address } = data
   const client = await clerkClient()
   try {
@@ -67,5 +46,51 @@ export async function deleteUser(userId: string) {
   } catch (error: any) {
     console.error('Error deleting user:', error)
     throw error // Rethrow error to be handled by the API route
+  }
+}
+
+type UpdateUserInput = {
+  userId: string
+  firstName?: string
+  lastName?: string
+  emailAddress?: string
+  address?: string
+}
+
+export async function updateUser(data: UpdateUserInput) {
+  const user = await currentUser()
+  if (!user) {
+    throw new Error('User is not authenticated.')
+  }
+
+  if (user.publicMetadata?.role !== 'admin') {
+    throw new Error('User does not have permission to update other users.')
+  }
+
+  const { userId, firstName, lastName, emailAddress, address } = data
+
+  try {
+    // Get current user details to preserve existing metadata
+    const client = await clerkClient()
+    const existingUser = await client.users.getUser(userId)
+
+    // Merge the existing publicMetadata to preserve fields like `role`
+    const updatedMetadata = {
+      ...existingUser.publicMetadata,
+      ...(address && { address }), // Only update address if provided
+    }
+
+    const updatedUser = await client.users.updateUser(userId, {
+      ...(firstName && { firstName }),
+      ...(lastName && { lastName }),
+      ...(emailAddress && { emailAddress: [emailAddress] }),
+      publicMetadata: updatedMetadata,
+    })
+
+    return updatedUser
+  } catch (error: any) {
+    console.error('Error updating user:', error)
+    console.error('Clerk error details:', error.errors)
+    throw error
   }
 }

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
         months: months.join(","),
         userId,
       },
-      success_url: `${req.nextUrl.origin}/payment-success?months=${months.join(",")}`,
+      success_url: `${req.nextUrl.origin}/success?months=${months.join(",")}`,
       cancel_url: `${req.nextUrl.origin}/dashboard`,
     });
 

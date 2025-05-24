@@ -44,7 +44,7 @@ export default async function OverViewLayout({
       <div className='flex max-w-full w-full flex-col space-y-4'>
         <div className='flex flex-wrap justify-between items-center'>
           <h2 className='text-2xl font-bold tracking-tight'>
-            Hi, Welcome back {user?.firstName} 👋
+            Hi, {user?.firstName} 👋 Welcome back to CivicNest 
           </h2>
         </div>
 

@@ -38,22 +38,19 @@ export default function SignInViewPage({ stars }: { stars: number }) {
           >
             <path d='M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3' />
           </svg>
-          Logo
+          CivicNest
         </div>
         <div className='relative z-20 mt-auto'>
           <blockquote className='space-y-2'>
             <p className='text-lg'>
-              &ldquo;This starter template has saved me countless hours of work
-              and helped me deliver projects to my clients faster than ever
-              before.&rdquo;
+              &ldquo;CivicNest helps communities streamline operations and improve engagement. Our platform saved countless hours for our clients.&rdquo;
             </p>
-            <footer className='text-sm'>Random Dude</footer>
+            <footer className='text-sm'>Community Manager</footer>
           </blockquote>
         </div>
       </div>
       <div className='flex h-full items-center justify-center p-4 lg:p-8'>
         <div className='flex w-full max-w-md flex-col items-center justify-center space-y-6'>
-          {/* github link  */}
           <Link
             className={cn('group inline-flex hover:text-yellow-200')}
             target='_blank'
@@ -71,11 +68,12 @@ export default function SignInViewPage({ stars }: { stars: number }) {
               <span className='font-display font-medium'>{stars}</span>
             </div>
           </Link>
-          <ClerkSignInForm
-            initialValues={{
-              emailAddress: ''
-            }}
-          />
+
+          <div className='w-full space-y-4 rounded-xl border bg-white p-6 shadow-lg dark:border-zinc-700 dark:bg-zinc-900'>
+            <h2 className='text-center text-2xl font-semibold tracking-tight'>Welcome back</h2>
+            <p className='text-center text-sm text-muted-foreground'>Sign in to your CivicNest account</p>
+            <ClerkSignInForm initialValues={{ emailAddress: '' }} />
+          </div>
 
           <p className='text-muted-foreground px-8 text-center text-sm'>
             By clicking continue, you agree to our{' '}

@@ -1,5 +1,5 @@
 {
-  "name": "next-shadcn-dashboard-starter",
+  "name": "civic-nest",
   "version": "1.0.0",
   "private": true,
   "author": {
@@ -24,6 +24,8 @@
   },
   "dependencies": {
     "@clerk/backend-core": "^2.13.2",
+    "@clerk/clerk-sdk-node": "^4.13.23",
+    "@clerk/express": "^1.5.0",
     "@clerk/nextjs": "^6.12.12",
     "@clerk/themes": "^2.2.26",
     "@dnd-kit/core": "^6.3.1",

@@ -47,10 +47,21 @@ export async function deleteTicket(ticketId: string) {
     throw new Error("Invalid ticket ID.");
   }
 
-  await ticket.deleteOne({
-    _id: new Types.ObjectId(ticketId),
-    'createdBy.clerkId': user.id
-  });
+  const isAdmin = user.publicMetadata?.role === 'admin';
+
+  const deleteQuery: any = { _id: new Types.ObjectId(ticketId) };
+
+  // If user is not admin, restrict deletion to their own tickets
+  if (!isAdmin) {
+    deleteQuery['createdBy.clerkId'] = user.id;
+  }
+
+  const result = await ticket.deleteOne(deleteQuery);
+
+  // Optionally, you can check if a ticket was actually deleted
+  if (result.deletedCount === 0) {
+    throw new Error("Ticket not found or you don't have permission to delete it.");
+  }
 }
 
 

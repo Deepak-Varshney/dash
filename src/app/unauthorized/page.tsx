@@ -30,7 +30,7 @@ export default async function Component() {
                                 You do not have the necessary permissions to access this resource. Please contact your administrator for assistance.
                             </p>
 
-                            <div className="mt-6">
+                          { user?.imageUrl && <div className="mt-6">
                                 {user?.imageUrl ? (
                                     <
                                         Image
@@ -52,7 +52,7 @@ export default async function Component() {
                                         style={{ aspectRatio: "300/300", objectFit: "cover" }}
                                     />
                                 )}
-                            </div>
+                            </div>}
                             <h2>{user?.firstName} {user?.lastName}</h2>
                             <p className="mt-2 text-muted-foreground">
                                 {user?.emailAddresses[0]?.emailAddress}

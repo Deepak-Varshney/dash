@@ -38,23 +38,32 @@ export async function saveEvent(data: Event) {
 
 
 export async function deleteEvent(eventId: string) {
-  await connectDB();
-  const user = await currentUser();
+  await connectDB()
+  const user = await currentUser()
 
   if (!user) {
-    throw new Error("User is not authenticated.");
+    throw new Error('User is not authenticated.')
   }
 
   if (!Types.ObjectId.isValid(eventId)) {
-    throw new Error("Invalid events ID.");
+    throw new Error('Invalid event ID.')
   }
 
-  await event.deleteOne({
-    _id: new Types.ObjectId(eventId),
-    'createdBy.clerkId': user.id, // optional: only delete if owned by user
-  });
-}
+  const isAdmin = user.publicMetadata?.role === 'admin'
 
+  const deleteQuery: any = { _id: new Types.ObjectId(eventId) }
+
+  // If not admin, restrict deletion to only events they created
+  if (!isAdmin) {
+    deleteQuery['createdBy.clerkId'] = user.id
+  }
+
+  const result = await event.deleteOne(deleteQuery)
+
+  if (result.deletedCount === 0) {
+    throw new Error('You are not authorized to delete this event or it does not exist.')
+  }
+}
 
 
 interface GetEventsParams {
