@@ -15,6 +15,9 @@ const ticketSchema = new mongoose.Schema({
     email: { type: String, required: true },
     clerkId: { type: String, required: true },
   },
+  priority:{
+    type:String
+  },
   assignedTo: {
     id: String,
     firstName: String,

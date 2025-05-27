@@ -28,7 +28,7 @@ export default async function TicketViewPage({
     firstName: user.firstName || '',
     lastName: user.lastName || '',
     email: (user.emailAddresses && user.emailAddresses[0]?.emailAddress) || '',
-    id: user.id || ''
+    clerkId: user.id || ''
   }));
 
   return <TicketForm supervisors={supervisor} initialData={ticket || undefined} pageTitle={pageTitle} />;

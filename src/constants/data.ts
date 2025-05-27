@@ -32,6 +32,8 @@ export type Ticket = {
   createdAt?: Date;
   updatedAt?: Date;
   deadline?: Date;
+  priority?:string;
+  image?:string;
   __v?: number;
 };
 export type User = {
