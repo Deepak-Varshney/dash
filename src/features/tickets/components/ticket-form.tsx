@@ -51,21 +51,28 @@ const formSchema = z.object({
         ),
     category: z.string().min(1, 'Category is required'),
     subcategory: z.string().min(1, 'Subcategory is required'),
-    description: z.string().min(10, 'Description must be at least 10 characters')
+    description: z.string().min(10, 'Description must be at least 10 characters'),
+    assignedTo: z.object({
+        firstName: z.string().min(1, 'First name is required').optional(),
+        lastName: z.string().min(1, 'Last name is required').optional(),
+        email: z.string().email('Invalid email address').optional(),
+        id: z.string().min(1, 'Supervisor ID is required').optional()
+    }).optional()
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 export default function TicketForm({
     initialData,
+    supervisors,
     pageTitle,
 }: {
     initialData?: Ticket;
+    supervisors?: { id: string; firstName: string; lastName: string; email?: string;}[];
     pageTitle: string;
 }) {
     const [loading, setLoading] = useState(false);
     const submitButtonText = initialData ? 'Update Ticket' : 'Create Ticket';
-
     const router = useRouter();
 
     const form = useForm<FormValues>({
@@ -74,7 +81,13 @@ export default function TicketForm({
             category: '',
             subcategory: '',
             description: '',
-            image: ''
+            image: '',
+            assignedTo: {
+                firstName: '',
+                lastName: '',
+                email: '',
+                id: ''
+            }
         }
     });
 
@@ -86,6 +99,7 @@ export default function TicketForm({
                 ...values,
                 _id: initialData?._id,
             };
+            console.log(payload);
             await saveTicket(payload);
             toast.success('Ticket saved successfully');
             router.push('/dashboard/ticket');
@@ -96,7 +110,7 @@ export default function TicketForm({
             setLoading(false);
         }
     }
-
+console.log(supervisors);
     const selectedCategory = useWatch({ control: form.control, name: 'category' });
 
     const availableSubcategories = ticketOptions.find((cat) => cat.category === selectedCategory)?.subcategories || [];
@@ -194,6 +208,36 @@ export default function TicketForm({
                                             {...field}
                                         />
                                     </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name='assignedTo'
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Assign To</FormLabel>
+                                    <Select
+                                        onValueChange={(id) => {
+                                            const supervisor = supervisors?.find((s) => s.id === id);
+                                            field.onChange(supervisor ? supervisor : undefined);
+                                        }}
+                                        value={field.value?.id || ''}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder='Select a Supervisor' />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {supervisors?.map((option) => (
+                                                <SelectItem key={option.id} value={option.id}>
+                                                    {option.firstName} {option.lastName}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}

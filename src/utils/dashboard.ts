@@ -211,3 +211,15 @@ export async function getUsers() {
 
   return plainUsers;
 }
+
+export async function getSupervisors() {
+  const client = await clerkClient();
+  const users = await client.users.getUserList({ limit: 1000 });
+
+  const plainUsers = users.data.map((user) => sanitize(user));
+  const supervisors = plainUsers.filter(
+    (user: any) => user.publicMetadata?.role === 'supervisor'
+  );
+
+  return supervisors;
+}
