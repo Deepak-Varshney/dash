@@ -130,6 +130,10 @@ export const columns: ColumnDef<Ticket>[] = [
     }
   },
   {
+    accessorKey: 'createdAt',
+    header: 'Created At',
+  },
+  {
     accessorKey: 'createdBy',
     header: 'Created By',
     cell: ({ row }) => {

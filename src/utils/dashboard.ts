@@ -236,17 +236,62 @@ export const getTicketCountBeforeDate = async (status?: string, beforeDate?: Dat
   }
 };
 
-// New: Trend calculation helper
-export const calculateTrend = (current: number, previous: number): string => {
-  if (previous === 0) {
-    if (current === 0) return '0%';
-    if (current === 1) return '+100%'; // Single item added
-    return `+${current * 100}%`; // Scale up reasonably
-  }
+/**
+ * Gets ticket counts grouped by month, optionally filtered by status.
+ * @param status Optional ticket status to filter by.
+ * @returns Array of objects with year, month, and count.
+ */
+export const getTicketsByMonth = async (status?: string) => {
+  try {
+    await connectDB();
 
-  const change = ((current - previous) / previous) * 100;
-  return `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
+    const matchStage: any = {};
+    if (status) {
+      matchStage.status = status;
+    }
+
+    const result = await ticket.aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: {
+          "_id.year": 1,
+          "_id.month": 1,
+        },
+      },
+    ]);
+
+    // Optional: Format the result for easier consumption
+    return result.map(item => ({
+      year: item._id.year,
+      month: item._id.month,
+      count: item.count,
+    }));
+  } catch (error) {
+    console.error("Error fetching ticket counts by month:", error);
+    return [];
+  }
 };
+
+// // New: Trend calculation helper
+// export const calculateTrend = (current: number, previous: number): string => {
+//   if (previous === 0) {
+//     if (current === 0) return '0%';
+//     if (current === 1) return '+100%'; // Single item added
+//     return `+${current * 100}%`; // Scale up reasonably
+//   }
+
+//   const change = ((current - previous) / previous) * 100;
+//   return `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
+// };
 
 // export const calculateTrend = (current: number, previous: number): string => {
 //   if (previous === 0) {
@@ -257,6 +302,14 @@ export const calculateTrend = (current: number, previous: number): string => {
 //   return `${change >= 0 ? '+' : ''}${change.toFixed(0)}%`;
 // };
 
+export function calculateTrend(current: number, previous: number): string {
+  if (!isFinite(previous) || previous === 0) {
+    if (current === 0) return '0%';
+    return '100%'; // Avoid division by zero
+  }
+  const change = ((current - previous) / previous) * 100;
+  return `${change.toFixed(2)}%`;
+}
 
 // Total number of tickets
 export const getTotalTickets = async () => {

@@ -84,6 +84,8 @@ export type Event = {
   date: Date;
   createdAt?: Date;
   __v?: number;
+  meetingLink?: string;
+  isVirtual?: boolean;
 };
 
 export type Expense = {

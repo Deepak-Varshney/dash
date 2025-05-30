@@ -2,38 +2,92 @@
 
 import connectDB from '@/lib/mongodb';
 import event from '@/models/event';
-import { Event } from '@/constants/data';
+import { Event, User } from '@/constants/data';
 import { Types } from 'mongoose';
 import { currentUser } from '@clerk/nextjs/server';
+import { clerkClient } from '@clerk/nextjs/server';
+import { sendEmail } from '@/lib/email'; // <-- Create this utility
+function generateMeetLink() {
+  const code = Math.random().toString(36).substring(2, 9);
+  return `https://meet.google.com/${code}`;
+}
 
 export async function saveEvent(data: Event) {
+  console.log('Saving event:', data);
   await connectDB();
-  const user = await currentUser()
+  const user = await currentUser();
+  if (!user) {
+    throw new Error("User is not authenticated.");
+  }
+
+  const baseEventData = {
+    ...data,
+    date: new Date(data.date),
+    updatedAt: new Date(),
+  };
+
+  // Optional: Auto-generate a Meet link if it's virtual and no link is given
+  if (data.isVirtual && !data.meetingLink) {
+    baseEventData.meetingLink = generateMeetLink();
+  }
+
+  let savedEvent;
   if (data._id) {
     const id = new Types.ObjectId(data._id);
-    await event.findByIdAndUpdate(id, {
-      ...data,
-      date: new Date(data.date),
-      updatedAt: new Date(),
-    });
+    savedEvent = await event.findByIdAndUpdate(id, baseEventData, { new: true });
   } else {
-    if (!user) {
-      throw new Error("User is not authenticated.");
-    }
-    await event.create({
-      ...data,
-      date: new Date(data.date),
+    savedEvent = await event.create({
+      ...baseEventData,
       createdBy: {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.emailAddresses[0].emailAddress,
-        clerkId: user.id
+        clerkId: user.id,
       },
       createdAt: new Date(),
-      updatedAt: new Date(),
     });
   }
+
+  // 🔔 Send invites if it's a virtual event
+  if (data.isVirtual && baseEventData.meetingLink) {
+    const client = await clerkClient();
+    const usersResponse = await client.users.getUserList();
+    interface ClerkUser {
+      emailAddresses?: { emailAddress: string }[];
+    }
+
+    const usersList: ClerkUser[] = Array.isArray(usersResponse) ? usersResponse : (usersResponse.data ?? []);
+    const emails: string[] = usersList
+      .map((u: ClerkUser) => u.emailAddresses?.[0]?.emailAddress)
+      .filter(Boolean) as string[];
+
+    await Promise.all(
+      emails.map(email =>
+        sendEmail({
+          to: email,
+          subject: `You're Invited: ${data.title}`,
+          text: `
+Hi there,
+
+You're invited to join our upcoming virtual event: "${data.title}".
+
+📅 Date: ${new Date(data.date).toLocaleString()}
+📝 Description: ${data.description}
+
+🔗 Join the meeting: ${baseEventData.meetingLink}
+
+We look forward to seeing you there!
+
+Best regards,  
+The Events Team
+      `.trim()
+        })
+      )
+    );
+
+  }
 }
+
 
 
 

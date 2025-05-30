@@ -25,6 +25,8 @@ const formSchema = z.object({
   title: z.string().min(2, { message: 'Title is required' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters' }),
   date: z.coerce.date({ required_error: 'Date is required' }),
+  isVirtual: z.boolean().default(false),
+  meetingLink: z.string().url().optional()
 
 });
 type FormValues = z.infer<typeof formSchema>;
@@ -46,7 +48,10 @@ export default function EventForm({
     defaultValues: initialData || {
       title: '',
       description: '',
-      date: new Date()
+      date: new Date(),
+      meetingLink: '',
+      isVirtual: false,
+
     }
   });
 
@@ -127,6 +132,39 @@ export default function EventForm({
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name='isVirtual'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Virtual Event?</FormLabel>
+                  <FormControl>
+                    <input
+                      type="checkbox"
+                      checked={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {form.watch('isVirtual') && (
+              <FormField
+                control={form.control}
+                name='meetingLink'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Meeting Link</FormLabel>
+                    <FormControl>
+                      <Input placeholder='https://meet.google.com/...' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
 
             <Button type='submit' disabled={loading}>
