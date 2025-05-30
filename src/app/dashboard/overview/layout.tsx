@@ -49,6 +49,8 @@ import {
   getEventsOverTime,
   getEventCountByOrganizer,
 } from "@/analytics/eventUtils";
+import { PieGraph } from '@/components/pie-graph';
+import { getMonthlyExpensesData } from '@/utils/handleExpense';
 
 export const metadata: Metadata = {
   title: 'Dashboard: Overview',
@@ -70,14 +72,15 @@ export default async function OverViewLayout({
   const lastMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
 
   // Current values
-  const [totalTickets, totalTicketsAssigned, doneTickets, currentMonthExpense, users] = await Promise.all([
+  const [totalTickets, totalTicketsAssigned, doneTickets, currentMonthExpense, users, monthlyExpenseData] = await Promise.all([
     getTotalTickets(),
     getTicketCountWithStatus("assigned"),
     getTicketCountWithStatus("done"),
     getCurrentMonthExpenses(),
     getUsers(),
+    getMonthlyExpensesData(2025)
   ]);
-
+console.log(monthlyExpenseData)
   // Previous values
   const [prevTotalTickets, prevAssignedTickets, prevDoneTickets, previousMonthExpense] = await Promise.all([
     getTicketCountBeforeDate(undefined, lastMonthDate),
@@ -241,6 +244,15 @@ export default async function OverViewLayout({
               title="Events by Type"
               data={formatData(eventByType, "type", "count")}
               type="bar"
+            />
+          </div>
+          <div className="bg-primary- p-4 rounded-lg">
+
+            <PieGraph
+              title="Monthly Expenses"
+              description="Expenses by category"
+              data={monthlyExpenseData}
+              centerLabel="INR"
             />
           </div>
         </div>

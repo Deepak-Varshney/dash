@@ -34,6 +34,37 @@ export async function getUsers({ page = 1, limit = 10, search = '' }) {
   };
 }
 
+export async function getUsersByRoleCounts() {
+  const client = await clerkClient();
+  const limit = 100; // adjust based on Clerk account limits
+  let offset = 0;
+  let hasMore = true;
+  const roleCounts: Record<string, number> = {};
+
+  while (hasMore) {
+    const { data: users, totalCount } = await client.users.getUserList({
+      limit,
+      offset
+    });
+
+    users.forEach((user) => {
+      const role: string = (user.publicMetadata?.role as string) ?? 'unknown';
+      roleCounts[role] = (roleCounts[role] || 0) + 1;
+    });
+
+    offset += users.length;
+    hasMore = offset < totalCount;
+  }
+
+  // Convert to array for charting
+  const result = Object.entries(roleCounts).map(([role, count]) => ({
+    id: role,
+    name: role.charAt(0).toUpperCase() + role.slice(1),
+    value: count
+  }));
+
+  return result;
+}
 
 
 type CreateUserParams = {

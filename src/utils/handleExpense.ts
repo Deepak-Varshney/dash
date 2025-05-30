@@ -2,6 +2,7 @@ import expense from "@/models/expense";
 import connectDB from "@/lib/mongodb";
 import { Expense } from "@/constants/data";
 import { toast } from "sonner";
+import { Document, PipelineStage } from 'mongoose'; // or from 'mongodb'
 
 interface GetExpensesParams {
   search?: string;
@@ -144,3 +145,50 @@ export const getExpenseBydId = async (expenseId: string) => {
     return null;
   }
 };
+
+
+
+
+const MONTH_IDS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+export async function getMonthlyExpensesData(year = new Date().getFullYear()) {
+  const raw = await expense.aggregate([
+    {
+      $match: {
+        date: {
+          $gte: new Date(`${year}-01-01`),
+          $lt: new Date(`${year + 1}-01-01`)
+        }
+      }
+    },
+    {
+      $group: {
+        _id: { $month: '$date' },
+        total: { $sum: '$amount' }
+      }
+    },
+    {
+      $project: {
+        month: '$_id',
+        total: 1,
+        _id: 0
+      }
+    }
+  ]);
+
+  // Create a full year with all 12 months, using aggregated totals where present
+  const fullYearData = Array.from({ length: 12 }).map((_, i) => {
+    const monthData = raw.find(item => item.month === i + 1);
+    return {
+      id: MONTH_IDS[i],
+      name: MONTH_NAMES[i],
+      value: monthData ? monthData.total : 0
+    };
+  });
+
+  return fullYearData;
+}
