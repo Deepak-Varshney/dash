@@ -485,7 +485,7 @@ function sanitize(obj: any): any {
 }
 export async function getUsers() {
   const client = await clerkClient();
-  const users = await client.users.getUserList({ limit: 100 });
+  const users = await client.users.getUserList({ limit: 1000 });
 
   const plainUsers = users.data.map((user) => sanitize(user));
 
@@ -503,3 +503,33 @@ export async function getSupervisors() {
 
   return supervisors;
 }
+type PieGraphData = {
+  name: string;
+  value: number;
+  id: string;
+};
+
+export async function getUsersByRole(): Promise<PieGraphData[]> {
+  const client = await clerkClient();
+  const users = await client.users.getUserList({ limit: 1000 });
+
+  const plainUsers = users.data.map((user) => sanitize(user));
+
+  const roleCounts: Record<string, number> = {};
+
+  for (const user of plainUsers) {
+    const role = user.publicMetadata?.role || 'Guest'; // default to 'user' if role is missing
+    roleCounts[role] = (roleCounts[role] || 0) + 1;
+  }
+
+  const data: PieGraphData[] = Object.entries(roleCounts).map(
+    ([role, count]) => ({
+      name: role.charAt(0).toUpperCase() + role.slice(1), // e.g. "admin" → "Admin"
+      value: count,
+      id: role
+    })
+  );
+
+  return data;
+}
+

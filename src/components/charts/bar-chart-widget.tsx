@@ -262,6 +262,7 @@ import {
   Line,
 } from "recharts";
 import { ChartContainer, ChartLegend, ChartTooltipContent } from "@/components/ui/chart";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
 export interface ChartDataItem {
   label: string;
@@ -301,17 +302,24 @@ export function BaseChartWidget({
   );
 
   return (
-    <ChartContainer config={chartConfig} className="bg-transparent min-h-[200px] w-full">
-      <ResponsiveContainer width="100%" className={"bg-transparent"} height={300}>
-        <ChartComponent data={formattedData}>
-          <CartesianGrid vertical={false} stroke="transparent" />
-          <XAxis dataKey="label" tickLine={false} tickMargin={10} axisLine={false} />
-          <YAxis allowDecimals={false} />
-          <Tooltip content={<ChartTooltipContent />} />
-          <ChartLegend />
-          {DataComponent}
-        </ChartComponent>
-      </ResponsiveContainer>
-    </ChartContainer>
+    <Card className='@container/card'>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+        <ChartContainer config={chartConfig} className="bg-transparent min-h-[200px] w-full">
+          <ResponsiveContainer width="100%" className={"bg-transparent"} height={300}>
+            <ChartComponent data={formattedData}>
+              <CartesianGrid vertical={false} stroke="transparent" />
+              <XAxis dataKey="label" tickLine={false} tickMargin={10} axisLine={false} />
+              <YAxis allowDecimals={false} />
+              <Tooltip content={<ChartTooltipContent />} />
+              <ChartLegend />
+              {DataComponent}
+            </ChartComponent>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   );
 }

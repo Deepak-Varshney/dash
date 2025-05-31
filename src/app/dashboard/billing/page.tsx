@@ -121,3 +121,41 @@ export default function PlansPage() {
 
   );
 }
+
+
+import React from 'react'
+import { PricingTable, Protect } from '@clerk/nextjs'
+import { auth } from '@clerk/nextjs/server'
+// const page = async () => {
+//   const { has } = await auth()
+//   const hasPremiumAccess = has({ plan: 'community' })
+
+//   return (
+
+//     <div className="p-6 w-full h-[calc(100vh-36px)] mx-auto">
+//       <PricingTable />
+//       {
+//         hasPremiumAccess ? (
+//           <div className="text-green-500">You have premium access!</div>
+//         ) : (
+//           <div className="text-red-500">You do not have premium access.</div>
+//         )
+//       }
+//     </div>
+
+//   )
+// }
+
+// export default page
+
+
+// export default function ProtectPage() {
+//   return (
+//     <Protect
+//       plan="comamunity"
+//       fallback={<p>Only subscribers to the Bronze plan can access this content.</p>}
+//     >
+//       As
+//     </Protect>
+//   )
+// }

@@ -156,6 +156,8 @@ const MONTH_NAMES = [
 ];
 
 export async function getMonthlyExpensesData(year = new Date().getFullYear()) {
+  await connectDB() // Ensure DB connection is established
+
   const raw = await expense.aggregate([
     {
       $match: {

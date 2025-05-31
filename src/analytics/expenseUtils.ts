@@ -49,28 +49,3 @@ export async function getExpensesOverTime() {
   ])
   return result
 }
-
-// 3. Expenses by user
-export async function getExpenseAmountByUser() {
-  await connectDB() // Ensure DB connection is established
-
-  const result = await expense.aggregate([
-    {
-      $match: { createdBy: { $exists: true, $ne: null } },
-    },
-    {
-      $group: {
-        _id: "$createdBy.name",
-        totalAmount: { $sum: "$amount" },
-      },
-    },
-    {
-      $project: {
-        name: "$_id",
-        totalAmount: 1,
-        _id: 0,
-      },
-    },
-  ])
-  return result
-}

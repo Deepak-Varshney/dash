@@ -288,6 +288,7 @@ import {
   calculateTrend,
   getTicketsByMonth,
   getUpcomingEvents,
+  getUsersByRole,
 } from '@/utils/dashboard';
 import { currentUser } from '@clerk/nextjs/server';
 import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
@@ -373,14 +374,14 @@ export default async function OverViewLayout({
   // Fetch chart data
   const [
     ticketByCategory,
+    usersByRole,
     ticketByStatus,
     expenseByCategory,
-    expenseOverTime,
   ] = await Promise.all([
     getTicketCountByCategory(),
+    getUsersByRole(),
     getTicketCountByStatus(),
     getExpenseAmountByCategory(),
-    getExpensesOverTime(),
   ]);
 
   const formatData = (arr: any[], labelKey: string, valueKey: string) =>
@@ -412,13 +413,12 @@ export default async function OverViewLayout({
       link: 'event',
     },
   ];
-
   return (
     <PageContainer>
       <div className='flex max-w-full w-full flex-col space-y-4'>
         <div className='flex flex-wrap justify-between items-center'>
           <h2 className='text-2xl font-bold tracking-tight'>
-            Hi, {user?.firstName || 'there'} 👋 Welcome back to CivicNest
+            Hi {user?.firstName || 'there'}, Welcome back to CivicNest 👋
           </h2>
         </div>
 
@@ -453,16 +453,22 @@ export default async function OverViewLayout({
                     <div className='text-muted-foreground'>{footerDesc}</div>
                   </CardFooter>
                 </Link>
-
               </Card>
             );
           })}
-
         </div>
 
         {/* Charts Grid */}
-        <div className='grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-4 gap-4'>
-          <div className="bg-primary- p-4 rounded-lg">
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
+          <div className="p-4 rounded-lg">
+            <PieGraph
+              title="Monthly Expenses"
+              description="Expenses by category"
+              data={monthlyExpenseData}
+              centerLabel="INR"
+            />
+          </div>
+          <div className="p-4 rounded-lg">
             <PieGraph
               title="Tickets Status Breakdown"
               description="Current ticket status distribution"
@@ -480,32 +486,20 @@ export default async function OverViewLayout({
               centerLabel="Tickets"
             />
           </div>
-          <div className="bg- p-4 rounded-lg">
-            <PieGraph
-              title="Monthly Expenses"
-              description="Expenses by category"
-              data={monthlyExpenseData}
-              centerLabel="INR"
-            />
-          </div>
-          {/* Expenses */}
-          <div className="bg-primary- p-4 rounded-lg">
-            <h3 className="font-semibold mb-2">Expenses by Category</h3>
+          <div className="p-4 rounded-lg">
             <BaseChartWidget
               title="Expenses by Category"
               data={formatData(expenseByCategory, "category", "totalAmount")}
               type="bar"
             />
           </div>
-          <div className="bg-primary- p-4 rounded-lg">
-            <h3 className="font-semibold mb-2">Expenses Over Time</h3>
+          <div className="p-4 rounded-lg">
             <BaseChartWidget
-              title="Expenses Over Time"
-              data={formatData(expenseOverTime, "date", "totalAmount")}
-              type="line"
+              title="Tickets by Category"
+              data={formatData(ticketByCategory, "category", "count")}
+              type="bar"
             />
           </div>
-
         </div>
         <div className='grid grid-cols-1 gap-4 lg:grid-cols-7'>
           <div className='lg:col-span-4'>
@@ -514,14 +508,12 @@ export default async function OverViewLayout({
             <UserViewTable columns={columns} data={users} />
           </div>
           <div className='lg:col-span-3'>
-            <div className="bg-primary- p-4 rounded-lg">
-              <h3 className="font-semibold mb-2">Tickets by Category</h3>
-              <BaseChartWidget
-                title="Tickets by Category"
-                data={formatData(ticketByCategory, "category", "count")}
-                type="bar"
-              />
-            </div>
+            <PieGraph
+              title="User Roles Distribution"
+              description="Visual breakdown of users by role"
+              data={usersByRole}
+              centerLabel="Users"
+            />
           </div>
           <div className='lg:col-span-7'>
             <div className='overflow-y-auto p-4 border rounded-xl'>
